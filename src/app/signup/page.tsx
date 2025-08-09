@@ -18,6 +18,9 @@ import {
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
+import { FaGithub } from "react-icons/fa6";
+import { signIn } from "next-auth/react";
+import { FcGoogle } from "react-icons/fc";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -395,6 +398,37 @@ const SignupPage = () => {
                 )}
               </motion.button>
             </form>
+            <div className="mt-6 flex items-center">
+              <div className="flex-grow h-px bg-gray-300"></div>
+              <span className="px-3 text-gray-500 text-sm">OR</span>
+              <div className="flex-grow h-px bg-gray-300"></div>
+            </div>
+
+            <div className="mt-6 space-y-3">
+              {/* Google Sign In */}
+              <button
+                type="button"
+                onClick={() => signIn("google", { callbackUrl: "/" })}
+                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-2xl hover:bg-gray-50 transition cursor-pointer"
+              >
+                <FcGoogle className="w-5 h-5" />
+                <span className="text-gray-700 font-medium">
+                  Continue with Google
+                </span>
+              </button>
+
+              {/* GitHub Sign In */}
+              <button
+                type="button"
+                onClick={() => signIn("github", { callbackUrl: "/" })}
+                className="w-full flex items-center justify-center gap-3 py-3 px-4 border border-gray-300 rounded-2xl hover:bg-gray-50 transition cursor-pointer"
+              >
+                <FaGithub className="w-5 h-5" />
+                <span className="text-gray-700 font-medium">
+                  Continue with GitHub
+                </span>
+              </button>
+            </div>
 
             {/* Login Link */}
             <div className="mt-8 text-center">
