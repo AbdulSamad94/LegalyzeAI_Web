@@ -1,7 +1,6 @@
 "use client";
 
 import type React from "react";
-
 import { motion, AnimatePresence } from "framer-motion";
 import {
   Scale,
@@ -61,20 +60,15 @@ const SignupPage = () => {
     },
   ];
 
-  // Auto-cycle through taglines
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
     }, 3000);
-
     return () => clearInterval(interval);
   }, [taglines.length]);
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value,
-    });
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -87,22 +81,17 @@ const SignupPage = () => {
       alert("Please accept the terms and conditions");
       return;
     }
-
     setIsLoading(true);
-
-    // Simulate API call
     await new Promise((resolve) => setTimeout(resolve, 2000));
-
     setIsLoading(false);
-    // Handle signup logic here
   };
 
   const currentTagline = taglines[currentTaglineIndex];
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
-      {/* Right Side - Animated Taglines (Mobile: Top) */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden flex items-center justify-center order-1 lg:order-2 min-h-[40vh] lg:min-h-screen">
+      {/* Right Side - Desktop Only */}
+      <div className="hidden lg:flex lg:w-1/2 bg-gradient-to-br from-slate-900 via-blue-900 to-indigo-900 relative overflow-hidden items-center justify-center order-2 min-h-screen">
         {/* Background Pattern */}
         <div className="absolute inset-0">
           <div className="absolute top-20 left-20 w-32 h-32 bg-blue-400 rounded-full mix-blend-multiply filter blur-xl opacity-20 animate-pulse"></div>
@@ -118,10 +107,7 @@ const SignupPage = () => {
               <motion.div
                 key={i}
                 className="bg-white rounded-sm"
-                animate={{
-                  opacity: [0.1, 0.3, 0.1],
-                  scale: [1, 1.1, 1],
-                }}
+                animate={{ opacity: [0.1, 0.3, 0.1] }}
                 transition={{
                   duration: 2,
                   repeat: Number.POSITIVE_INFINITY,
@@ -132,76 +118,57 @@ const SignupPage = () => {
           </div>
         </div>
 
-        {/* Tagline Content */}
+        {/* Tagline Content - Simple Fade Animation */}
         <div className="relative z-10 text-center px-8 lg:px-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentTaglineIndex}
-              initial={{ opacity: 0, y: 50, scale: 0.9 }}
-              animate={{ opacity: 1, y: 0, scale: 1 }}
-              exit={{ opacity: 0, y: -50, scale: 0.9 }}
-              transition={{ duration: 0.8, ease: "easeInOut" }}
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              transition={{ duration: 0.6 }}
               className="space-y-8"
             >
-              {/* Icon */}
               <motion.div
-                initial={{ scale: 0, rotate: -180 }}
-                animate={{ scale: 1, rotate: 0 }}
-                transition={{ duration: 0.6, delay: 0.2 }}
+                initial={{ opacity: 0 }}
+                animate={{ opacity: 1 }}
+                transition={{ duration: 0.4 }}
                 className={`inline-flex p-6 rounded-3xl bg-gradient-to-r ${currentTagline.gradient} shadow-2xl`}
               >
                 <currentTagline.icon className="h-12 w-12 text-white" />
               </motion.div>
 
-              {/* Tagline Text */}
               <motion.h1
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.4 }}
+                transition={{ duration: 0.4, delay: 0.2 }}
                 className="text-4xl lg:text-5xl xl:text-6xl font-bold text-white leading-tight"
               >
                 {currentTagline.text}
               </motion.h1>
 
-              {/* Subtitle */}
               <motion.p
                 initial={{ opacity: 0 }}
                 animate={{ opacity: 1 }}
-                transition={{ duration: 0.6, delay: 0.6 }}
+                transition={{ duration: 0.4, delay: 0.3 }}
                 className="text-xl text-blue-100 max-w-md mx-auto"
               >
                 Join thousands of professionals who trust Legalyze AI
               </motion.p>
             </motion.div>
           </AnimatePresence>
-
-          {/* Progress Indicators */}
-          <div className="flex justify-center space-x-2 mt-12">
-            {taglines.map((_, index) => (
-              <motion.div
-                key={index}
-                className={`h-2 rounded-full transition-all duration-300 ${
-                  index === currentTaglineIndex
-                    ? "w-8 bg-white"
-                    : "w-2 bg-white/30"
-                }`}
-                animate={{
-                  scale: index === currentTaglineIndex ? 1.2 : 1,
-                }}
-              />
-            ))}
-          </div>
         </div>
       </div>
 
-      {/* Left Side - Signup Form (Mobile: Bottom) */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8 order-2 lg:order-1 min-h-[60vh] lg:min-h-screen">
+      {/* Left Side - Signup Form */}
+      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8 order-1 lg:order-1 min-h-screen">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
           transition={{ duration: 0.8 }}
           className="w-full max-w-md"
         >
+          {/* Back Link */}
           <motion.div
             initial={{ opacity: 0, y: -20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -216,6 +183,7 @@ const SignupPage = () => {
               Back to Home
             </Link>
           </motion.div>
+
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <motion.div
@@ -254,7 +222,7 @@ const SignupPage = () => {
             className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
           >
             <form onSubmit={handleSubmit} className="space-y-6">
-              {/* Name Field */}
+              {/* Name */}
               <div>
                 <label
                   htmlFor="name"
@@ -273,13 +241,13 @@ const SignupPage = () => {
                     value={formData.name}
                     onChange={handleInputChange}
                     required
-                    className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     placeholder="Enter your full name"
                   />
                 </div>
               </div>
 
-              {/* Email Field */}
+              {/* Email */}
               <div>
                 <label
                   htmlFor="email"
@@ -298,13 +266,13 @@ const SignupPage = () => {
                     value={formData.email}
                     onChange={handleInputChange}
                     required
-                    className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     placeholder="Enter your email"
                   />
                 </div>
               </div>
 
-              {/* Password Field */}
+              {/* Password */}
               <div>
                 <label
                   htmlFor="password"
@@ -323,7 +291,7 @@ const SignupPage = () => {
                     value={formData.password}
                     onChange={handleInputChange}
                     required
-                    className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     placeholder="Create a strong password"
                   />
                   <button
@@ -340,7 +308,7 @@ const SignupPage = () => {
                 </div>
               </div>
 
-              {/* Confirm Password Field */}
+              {/* Confirm Password */}
               <div>
                 <label
                   htmlFor="confirmPassword"
@@ -359,7 +327,7 @@ const SignupPage = () => {
                     value={formData.confirmPassword}
                     onChange={handleInputChange}
                     required
-                    className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent transition-all duration-200 text-gray-900"
+                    className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent text-gray-900"
                     placeholder="Confirm your password"
                   />
                   <button
@@ -376,7 +344,7 @@ const SignupPage = () => {
                 </div>
               </div>
 
-              {/* Terms and Conditions */}
+              {/* Terms */}
               <div className="flex items-start">
                 <input
                   id="accept-terms"
@@ -406,7 +374,7 @@ const SignupPage = () => {
                 </label>
               </div>
 
-              {/* Submit Button */}
+              {/* Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
