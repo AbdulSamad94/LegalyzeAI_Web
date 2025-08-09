@@ -3,6 +3,7 @@
 import { motion } from "framer-motion";
 import { Scale, Menu, X } from "lucide-react";
 import { useState } from "react";
+import Link from "next/link";
 
 const Header = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
@@ -36,7 +37,7 @@ const Header = () => {
             initial={{ x: -50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
             transition={{ duration: 0.6, delay: 0.1 }}
-            className="flex items-center space-x-2"
+            className="flex items-center space-x-2 cursor-pointer"
           >
             <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl">
               <Scale className="h-6 w-6 text-white" />
@@ -53,7 +54,7 @@ const Header = () => {
                 animate={{ y: 0, opacity: 1 }}
                 transition={{ duration: 0.6, delay: 0.2 + index * 0.1 }}
                 onClick={() => scrollToSection(item.href)}
-                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium after:content-normal after:block after:bg-blue-600 after:w-0 after:h-[2px] after:rounded-full hover:after:w-full after:duration-200 mt-1 cursor-pointer"
               >
                 {item.name}
               </motion.button>
@@ -67,10 +68,13 @@ const Header = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="hidden md:flex items-center space-x-4"
           >
-            <button className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium">
+            <Link
+              href="/login"
+              className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium"
+            >
               Login
-            </button>
-            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg transition-all duration-200 font-medium">
+            </Link>
+            <button className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg transition-all duration-200 font-medium cursor-pointer">
               Get Started
             </button>
           </motion.div>
