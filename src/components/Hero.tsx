@@ -9,7 +9,6 @@ const HeroSection = () => {
     { icon: Shield, delay: 0.5, x: -30, y: 10 },
     { icon: Zap, delay: 1, x: 40, y: 30 },
   ];
-
   return (
     <section className="pt-32 pb-20 px-4 sm:px-6 lg:px-8">
       <div className="max-w-7xl mx-auto">

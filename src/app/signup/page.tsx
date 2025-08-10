@@ -15,6 +15,8 @@ import {
   Zap,
   Clock,
   ArrowLeft,
+  CheckCircle,
+  AlertCircle,
 } from "lucide-react";
 import { useState, useEffect } from "react";
 import Link from "next/link";
@@ -34,6 +36,8 @@ const SignupPage = () => {
   const [acceptTerms, setAcceptTerms] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
+  const [message, setMessage] = useState({ type: "", content: "" });
+  const [showSuccess, setShowSuccess] = useState(false);
 
   const taglines = [
     {
@@ -72,24 +76,111 @@ const SignupPage = () => {
 
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     setFormData({ ...formData, [e.target.name]: e.target.value });
+    // Clear error messages when user starts typing
+    if (message.type === "error") {
+      setMessage({ type: "", content: "" });
+    }
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    console.log("Submitting form data:", formData);
+
     if (formData.password !== formData.confirmPassword) {
-      alert("Passwords don't match!");
+      setMessage({ type: "error", content: "Passwords don't match!" });
       return;
     }
+
     if (!acceptTerms) {
-      alert("Please accept the terms and conditions");
+      setMessage({
+        type: "error",
+        content: "Please accept the terms and conditions",
+      });
       return;
     }
+
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
+    setMessage({ type: "", content: "" });
+
+    try {
+      const response = await fetch("/api/auth/signup", {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(formData),
+      });
+
+      const data = await response.json();
+
+      if (data.success) {
+        setShowSuccess(true);
+        setMessage({ type: "success", content: data.message });
+        setFormData({
+          name: "",
+          email: "",
+          password: "",
+          confirmPassword: "",
+        });
+        setAcceptTerms(false);
+      } else {
+        setMessage({ type: "error", content: data.message });
+      }
+    } catch (error) {
+      console.error("Signup error:", error);
+      setMessage({
+        type: "error",
+        content: "Something went wrong. Please try again.",
+      });
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const currentTagline = taglines[currentTaglineIndex];
+
+  if (showSuccess) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8">
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ duration: 0.6 }}
+          className="w-full max-w-md"
+        >
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8 text-center">
+            <motion.div
+              initial={{ scale: 0 }}
+              animate={{ scale: 1 }}
+              transition={{ delay: 0.2, type: "spring" }}
+              className="inline-flex p-4 bg-green-100 rounded-full mb-6"
+            >
+              <CheckCircle className="h-8 w-8 text-green-600" />
+            </motion.div>
+
+            <h1 className="text-2xl font-bold text-gray-900 mb-4">
+              Check Your Email!
+            </h1>
+            <p className="text-gray-600 mb-8">{message.content}</p>
+
+            <div className="space-y-3">
+              <button
+                onClick={() => setShowSuccess(false)}
+                className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300"
+              >
+                Create Another Account
+              </button>
+              <Link href="/login">
+                <button className="w-full text-blue-600 hover:text-blue-500 transition-colors duration-200">
+                  Already verified? Sign In
+                </button>
+              </Link>
+            </div>
+          </div>
+        </motion.div>
+      </div>
+    );
+  }
 
   return (
     <div className="min-h-screen flex flex-col lg:flex-row">
@@ -121,7 +212,7 @@ const SignupPage = () => {
           </div>
         </div>
 
-        {/* Tagline Content - Simple Fade Animation */}
+        {/* Tagline Content */}
         <div className="relative z-10 text-center px-8 lg:px-16">
           <AnimatePresence mode="wait">
             <motion.div
@@ -217,6 +308,26 @@ const SignupPage = () => {
             </motion.p>
           </div>
 
+          {/* Alert Message */}
+          {message.content && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className={`mb-6 p-4 rounded-2xl flex items-center gap-3 ${
+                message.type === "error"
+                  ? "bg-red-50 border border-red-200 text-red-700"
+                  : "bg-green-50 border border-green-200 text-green-700"
+              }`}
+            >
+              {message.type === "error" ? (
+                <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              ) : (
+                <CheckCircle className="h-5 w-5 flex-shrink-0" />
+              )}
+              <span className="text-sm">{message.content}</span>
+            </motion.div>
+          )}
+
           {/* Signup Form */}
           <motion.div
             initial={{ opacity: 0, y: 30 }}
@@ -224,7 +335,7 @@ const SignupPage = () => {
             transition={{ duration: 0.8, delay: 0.5 }}
             className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
           >
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Name */}
               <div>
                 <label
@@ -377,7 +488,7 @@ const SignupPage = () => {
                 </label>
               </div>
 
-              {/* Button */}
+              {/* Submit Button */}
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
@@ -398,6 +509,7 @@ const SignupPage = () => {
                 )}
               </motion.button>
             </form>
+
             <div className="mt-6 flex items-center">
               <div className="flex-grow h-px bg-gray-300"></div>
               <span className="px-3 text-gray-500 text-sm">OR</span>

@@ -14,12 +14,14 @@ import {
   Zap,
   Clock,
   ArrowLeft,
+  AlertCircle,
 } from "lucide-react";
 import { FcGoogle } from "react-icons/fc";
 import { FaGithub } from "react-icons/fa";
 import { useState, useEffect } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -28,6 +30,8 @@ const LoginPage = () => {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [currentTaglineIndex, setCurrentTaglineIndex] = useState(0);
+  const [error, setError] = useState("");
+  const router = useRouter();
 
   const taglines = [
     {
@@ -52,7 +56,6 @@ const LoginPage = () => {
     },
   ];
 
-  // Auto-cycle through taglines
   useEffect(() => {
     const interval = setInterval(() => {
       setCurrentTaglineIndex((prev) => (prev + 1) % taglines.length);
@@ -63,8 +66,26 @@ const LoginPage = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    await new Promise((resolve) => setTimeout(resolve, 2000));
-    setIsLoading(false);
+    setError("");
+
+    try {
+      const result = await signIn("credentials", {
+        email,
+        password,
+        redirect: false,
+      });
+
+      if (result?.error) {
+        setError(result.error);
+      } else if (result?.ok) {
+        router.push("/");
+        router.refresh();
+      }
+    } catch {
+      setError("Something went wrong. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
   };
 
   const currentTagline = taglines[currentTaglineIndex];
@@ -102,7 +123,7 @@ const LoginPage = () => {
           </div>
         </div>
 
-        {/* Tagline Content - Simple Fade Animation */}
+        {/* Tagline Content */}
         <div className="relative z-10 text-center px-8 lg:px-16">
           <AnimatePresence mode="wait">
             <motion.div
@@ -166,9 +187,21 @@ const LoginPage = () => {
             </p>
           </div>
 
+          {/* Error Message */}
+          {error && (
+            <motion.div
+              initial={{ opacity: 0, y: -10 }}
+              animate={{ opacity: 1, y: 0 }}
+              className="mb-6 p-4 rounded-2xl flex items-center gap-3 bg-red-50 border border-red-200 text-red-700"
+            >
+              <AlertCircle className="h-5 w-5 flex-shrink-0" />
+              <span className="text-sm">{error}</span>
+            </motion.div>
+          )}
+
           {/* Login Form */}
           <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
-            <form onSubmit={handleSubmit} className="space-y-6">
+            <div className="space-y-6">
               {/* Email Field */}
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
@@ -179,7 +212,10 @@ const LoginPage = () => {
                   <input
                     type="email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
+                    onChange={(e) => {
+                      setEmail(e.target.value);
+                      setError("");
+                    }}
                     required
                     className="block w-full pl-10 pr-3 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your email"
@@ -197,7 +233,10 @@ const LoginPage = () => {
                   <input
                     type={showPassword ? "text" : "password"}
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
+                    onChange={(e) => {
+                      setPassword(e.target.value);
+                      setError("");
+                    }}
                     required
                     className="block w-full pl-10 pr-12 py-4 border border-gray-300 rounded-2xl focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-transparent"
                     placeholder="Enter your password"
@@ -239,7 +278,8 @@ const LoginPage = () => {
               <motion.button
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
-                type="submit"
+                type="button"
+                onClick={handleSubmit}
                 disabled={isLoading}
                 className="w-full bg-gradient-to-r from-blue-600 to-indigo-600 text-white py-4 px-6 rounded-2xl font-semibold text-lg hover:shadow-xl disabled:opacity-50 flex items-center justify-center gap-2"
               >
@@ -255,7 +295,8 @@ const LoginPage = () => {
                   </>
                 )}
               </motion.button>
-            </form>
+            </div>
+
             <div className="mt-6 flex items-center">
               <div className="flex-grow h-px bg-gray-300"></div>
               <span className="px-3 text-gray-500 text-sm">OR</span>

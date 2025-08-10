@@ -2,6 +2,7 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
+import { SessionProviderWrapper } from "@/components/session/SessionProviderWrapper";
 import { Analytics } from "@vercel/analytics/next";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
@@ -30,11 +31,13 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <html lang="en" className="scroll-smooth">
-      <body className={plusJakartaSans.className}>
-        {children}
-        <Analytics />
-      </body>
-    </html>
+    <SessionProviderWrapper>
+      <html lang="en" className="scroll-smooth">
+        <body className={plusJakartaSans.className}>
+          {children}
+          <Analytics />
+        </body>
+      </html>
+    </SessionProviderWrapper>
   );
 }
