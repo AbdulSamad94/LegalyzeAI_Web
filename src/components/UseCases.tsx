@@ -58,27 +58,41 @@ const UseCases = () => {
           {useCases.map((useCase, index) => (
             <motion.div
               key={index}
-              initial={{ opacity: 0, scale: 0.8 }}
-              whileInView={{ opacity: 1, scale: 1 }}
+              initial={{ opacity: 0, y: 50 }}
+              whileInView={{ opacity: 1, y: 0 }}
               viewport={{ once: true }}
-              transition={{ duration: 0.6, delay: index * 0.1 }}
-              whileHover={{ scale: 1.05 }}
-              className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300"
+              transition={{
+                duration: 0.6,
+                delay: index * 0.15,
+              }}
             >
+              {/* Separate hover animation div */}
               <motion.div
-                whileHover={{ scale: 1.2, rotate: 10 }}
-                className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${useCase.color} mb-6`}
+                whileHover={{
+                  rotate: 2,
+                  scale: 1.05,
+                  transition: { duration: 0.2 }, // instant hover response
+                }}
+                className="bg-gradient-to-br from-gray-50 to-blue-50 rounded-2xl p-8 text-center hover:shadow-xl transition-all duration-300"
               >
-                <useCase.icon className="h-8 w-8 text-white" />
+                <motion.div
+                  whileHover={{
+                    rotate: 5,
+                    transition: { duration: 0.2 },
+                  }}
+                  className={`inline-flex p-4 rounded-2xl bg-gradient-to-r ${useCase.color} mb-6`}
+                >
+                  <useCase.icon className="h-8 w-8 text-white" />
+                </motion.div>
+
+                <h3 className="text-xl font-semibold text-gray-900 mb-4">
+                  {useCase.title}
+                </h3>
+
+                <p className="text-gray-600 leading-relaxed">
+                  {useCase.description}
+                </p>
               </motion.div>
-
-              <h3 className="text-xl font-semibold text-gray-900 mb-4">
-                {useCase.title}
-              </h3>
-
-              <p className="text-gray-600 leading-relaxed">
-                {useCase.description}
-              </p>
             </motion.div>
           ))}
         </div>

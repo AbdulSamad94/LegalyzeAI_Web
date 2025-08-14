@@ -66,7 +66,7 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="text-gray-400 text-sm"
           >
-            © 2024 Legalyze AI. All rights reserved.
+            © 2025 Legalyze AI. All rights reserved.
           </motion.p>
         </motion.div>
       </div>
