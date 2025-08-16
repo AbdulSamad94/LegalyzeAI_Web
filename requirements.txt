@@ -1,0 +1,8 @@
+pdfplumber
+python-docx
+pillow
+pytesseract
+pdf2image
+openai-agents[viz]
+python-dotenv
+fastapi
