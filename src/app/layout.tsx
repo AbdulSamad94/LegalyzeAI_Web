@@ -23,6 +23,9 @@ export const metadata: Metadata = {
       "Get instant legal document analysis with AI-powered summaries and risk assessments.",
     type: "website",
   },
+  icons: {
+    icon: "/fav-icon.png",
+  },
 };
 
 export default function RootLayout({

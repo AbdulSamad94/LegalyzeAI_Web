@@ -1,7 +1,7 @@
 "use client";
 
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Scale, Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
@@ -117,10 +117,13 @@ const Header: React.FC = () => {
             variants={logoVariants}
             className="flex items-center space-x-2 cursor-pointer"
           >
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl">
-              <Scale className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold text-gray-900">Legalyze AI</span>
+            <Image
+              src="/logo.png"
+              alt="Legalyze AI"
+              width={102}
+              height={102}
+              className="h-full w-full"
+            />
           </motion.div>
 
           {/* Desktop Navigation */}
