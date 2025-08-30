@@ -2,6 +2,7 @@
 
 import { motion } from "framer-motion";
 import { Scale } from "lucide-react";
+import Image from "next/image";
 
 const Footer = () => {
   const links = [
@@ -29,10 +30,13 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex items-center space-x-2 mb-6 md:mb-0"
           >
-            <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-2 rounded-xl">
-              <Scale className="h-6 w-6 text-white" />
-            </div>
-            <span className="text-xl font-bold">Legalyze AI</span>
+            <Image
+              src="/logo.png"
+              alt="Legalyze AI Logo"
+              width={100}
+              height={100}
+              className="w-full h-full"
+            />
           </motion.div>
 
           {/* Links */}
