@@ -117,13 +117,15 @@ const Header: React.FC = () => {
             variants={logoVariants}
             className="flex items-center space-x-2 cursor-pointer"
           >
-            <Image
-              src="/logo.png"
-              alt="Legalyze AI"
-              width={102}
-              height={102}
-              className="h-full w-full"
-            />
+            <Link href="/">
+              <Image
+                src="/logo.png"
+                alt="Legalyze AI"
+                width={102}
+                height={102}
+                className="h-full w-full"
+              />
+            </Link>
           </motion.div>
 
           {/* Desktop Navigation */}
@@ -194,10 +196,10 @@ const Header: React.FC = () => {
             )}
 
             <Link
-              href={session ? "/dashboard" : "/signup"}
+              href={session ? "/document" : "/signup"}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
-              {session ? "Dashboard" : "Get Started"}
+              {session ? "Try Now" : "Get Started"}
             </Link>
           </motion.div>
 

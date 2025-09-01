@@ -1,9 +1,18 @@
 "use client";
 
 import { motion } from "framer-motion";
+import { useCallback } from "react";
 import { ArrowRight, Play, FileText, Shield, Zap } from "lucide-react";
+import Link from "next/link";
 
 const HeroSection = () => {
+  const scrollToSection = useCallback((href: string) => {
+    const element = document.querySelector(href);
+    if (element) {
+      element.scrollIntoView({ behavior: "smooth", block: "start" });
+    }
+  }, []);
+
   const floatingElements = [
     { icon: FileText, delay: 0, x: 20, y: -20 },
     { icon: Shield, delay: 0.5, x: -30, y: 10 },
@@ -45,16 +54,17 @@ const HeroSection = () => {
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
-                Try for Free
+                <Link href={"/document"}>Try for Free</Link>
                 <ArrowRight className="h-5 w-5" />
               </motion.button>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
-                className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 flex items-center justify-center gap-2"
+                onClick={() => scrollToSection("#demo")}
+                className="border-2 border-gray-300 text-gray-700 px-8 py-4 rounded-2xl font-semibold text-lg hover:border-blue-600 hover:text-blue-600 transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
                 <Play className="h-5 w-5" />
                 See Demo

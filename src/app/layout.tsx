@@ -4,6 +4,8 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SessionProviderWrapper } from "@/components/session/SessionProviderWrapper";
 import { Analytics } from "@vercel/analytics/next";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -37,7 +39,9 @@ export default function RootLayout({
     <SessionProviderWrapper>
       <html lang="en" className="scroll-smooth">
         <body className={plusJakartaSans.className}>
+          <Header />
           {children}
+          <Footer />
           <Analytics />
         </body>
       </html>
