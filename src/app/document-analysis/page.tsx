@@ -2,6 +2,7 @@
 
 import type React from "react";
 import { useState, useRef } from "react";
+import { useSession } from "next-auth/react";
 import { AnimatePresence } from "framer-motion";
 import {
   type ProcessingUpdate,
@@ -14,6 +15,7 @@ import UploadView from "@/components/document-analysis/UploadView";
 import ProcessingView from "@/components/document-analysis/ProcessingView";
 import ResultsView from "@/components/document-analysis/ResultsView";
 import MobileBottomNav from "@/components/document-analysis/MobileBottomNav";
+import AuthRequired from "@/components/auth-gate";
 
 type ViewState = "upload" | "processing" | "results";
 
@@ -28,6 +30,7 @@ const LegalAnalysisComponent: React.FC = () => {
     useState<AnalysisResultShape | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
+  const { data: session } = useSession();
 
   const resetState = () => {
     setFile(null);
@@ -156,6 +159,9 @@ const LegalAnalysisComponent: React.FC = () => {
       sizes[i]
     }`;
   };
+  if (!session) {
+    return <AuthRequired />;
+  }
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
