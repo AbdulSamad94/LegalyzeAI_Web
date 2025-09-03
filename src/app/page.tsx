@@ -1,11 +1,9 @@
-"use client";
-
 import HeroSection from "@/components/Hero";
 import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import UseCases from "@/components/UseCases";
 import DemoSection from "@/components/Demo";
-import PricingSection from "@/components/Pricing";
+// import PricingSection from "@/components/Pricing";
 
 export default function Home() {
   return (
@@ -16,7 +14,7 @@ export default function Home() {
         <Features />
         <UseCases />
         <DemoSection />
-        <PricingSection />
+        {/* <PricingSection /> */}
       </main>
     </div>
   );

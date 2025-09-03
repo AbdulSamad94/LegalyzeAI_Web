@@ -120,9 +120,9 @@ const Header: React.FC = () => {
             <Link href="/">
               <Image
                 src="/logo.png"
-                alt="Legalyze AI"
-                width={102}
-                height={102}
+                alt="Veridict AI"
+                width={110}
+                height={110}
                 className="h-full w-full"
               />
             </Link>

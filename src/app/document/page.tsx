@@ -13,7 +13,6 @@ import {
   FileCheck,
   Loader2,
   AlertCircle,
-  Scale,
   Sparkles,
   Download,
   Share2,
@@ -24,7 +23,6 @@ import {
   Zap,
   Target,
   Home,
-  Menu,
   ChevronDown,
   BarChart3,
 } from "lucide-react";
@@ -49,7 +47,6 @@ const LegalAnalysisComponent: React.FC = () => {
   const [error, setError] = useState<string | null>(null);
   const [isDragOver, setIsDragOver] = useState(false);
   const [activeTab, setActiveTab] = useState<"summary" | "risks">("summary");
-  const [isMobileMenuOpen, setIsMobileMenuOpen] = useState(false);
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const resetState = () => {
@@ -135,6 +132,7 @@ const LegalAnalysisComponent: React.FC = () => {
 
             const finalResult = parseStreamData(rawData);
             if (finalResult) {
+              console.log(isAnalyzing);
               setAnalysisResult(finalResult);
               setProcessingUpdates([]);
               setCurrentView("results");
@@ -213,65 +211,8 @@ const LegalAnalysisComponent: React.FC = () => {
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col mt-10">
+    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col mt-16">
       {/* Mobile Header */}
-      <div className="lg:hidden bg-white/90 backdrop-blur-md border-b border-gray-200 sticky top-0 z-50">
-        <div className="flex items-center justify-between p-4">
-          <div className="flex items-center gap-3">
-            <div className="w-10 h-10 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-xl flex items-center justify-center">
-              <Scale className="h-5 w-5 text-white" />
-            </div>
-            <div>
-              <h1 className="text-lg font-bold text-gray-800">Legalyze AI</h1>
-              <p className="text-xs text-gray-600">Legal Analyzer</p>
-            </div>
-          </div>
-          <motion.button
-            whileTap={{ scale: 0.95 }}
-            onClick={() => setIsMobileMenuOpen(!isMobileMenuOpen)}
-            className="p-2 rounded-xl hover:bg-gray-100"
-          >
-            <Menu className="h-6 w-6 text-gray-600" />
-          </motion.button>
-        </div>
-
-        {/* Mobile Menu */}
-        <AnimatePresence>
-          {isMobileMenuOpen && (
-            <motion.div
-              initial={{ opacity: 0, height: 0 }}
-              animate={{ opacity: 1, height: "auto" }}
-              exit={{ opacity: 0, height: 0 }}
-              className="border-t border-gray-200 bg-white"
-            >
-              <div className="p-4 space-y-2">
-                {navigationItems.map((item) => (
-                  <button
-                    key={item.id}
-                    className={`w-full flex items-center gap-3 p-3 rounded-xl transition-all ${
-                      item.active
-                        ? "bg-blue-50 text-blue-600"
-                        : "text-gray-600 hover:bg-gray-50"
-                    }`}
-                  >
-                    <item.icon className="h-5 w-5" />
-                    <span className="font-medium">{item.label}</span>
-                  </button>
-                ))}
-                {analysisResult && (
-                  <button
-                    onClick={resetState}
-                    className="w-full flex items-center gap-3 p-3 rounded-xl text-gray-600 hover:bg-gray-50 transition-all"
-                  >
-                    <Home className="h-5 w-5" />
-                    <span className="font-medium">New Analysis</span>
-                  </button>
-                )}
-              </div>
-            </motion.div>
-          )}
-        </AnimatePresence>
-      </div>
 
       <div className="flex flex-1">
         {/* Desktop Sidebar */}
