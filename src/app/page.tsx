@@ -3,11 +3,14 @@ import HowItWorks from "@/components/HowItWorks";
 import Features from "@/components/Features";
 import UseCases from "@/components/UseCases";
 import DemoSection from "@/components/Demo";
+import Header from "@/components/Header";
+import Footer from "@/components/Footer";
 // import PricingSection from "@/components/Pricing";
 
 export default function Home() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 overflow-hidden">
+      <Header />
       <main>
         <HeroSection />
         <HowItWorks />
@@ -16,6 +19,7 @@ export default function Home() {
         <DemoSection />
         {/* <PricingSection /> */}
       </main>
+      <Footer />
     </div>
   );
 }
