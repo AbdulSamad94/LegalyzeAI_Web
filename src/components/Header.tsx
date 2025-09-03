@@ -196,7 +196,7 @@ const Header: React.FC = () => {
             )}
 
             <Link
-              href={session ? "/document" : "/signup"}
+              href={session ? "/document-analysis" : "/signup"}
               className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {session ? "Try Now" : "Get Started"}

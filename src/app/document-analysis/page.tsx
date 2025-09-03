@@ -34,6 +34,7 @@ const LegalAnalysisComponent: React.FC = () => {
     setProcessingUpdates([]);
     setAnalysisResult(null);
     setError(null);
+    console.log(isAnalyzing);
     setCurrentView("upload");
     if (fileInputRef.current) {
       fileInputRef.current.value = "";

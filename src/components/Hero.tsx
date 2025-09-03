@@ -56,7 +56,7 @@ const HeroSection = () => {
                 whileTap={{ scale: 0.95 }}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Link href={"/document"}>Try for Free</Link>
+                <Link href={"/document-analysis"}>Try for Free</Link>
                 <ArrowRight className="h-5 w-5" />
               </motion.button>
 
