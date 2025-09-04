@@ -23,6 +23,7 @@ import Link from "next/link";
 import { FaGithub } from "react-icons/fa6";
 import { signIn } from "next-auth/react";
 import { FcGoogle } from "react-icons/fc";
+import Image from "next/image";
 
 const SignupPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -255,7 +256,7 @@ const SignupPage = () => {
       </div>
 
       {/* Left Side - Signup Form */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8 order-1 lg:order-1 min-h-screen">
+      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center sm:px-8 py-8 px-4 order-1 lg:order-1 min-h-screen">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -286,9 +287,7 @@ const SignupPage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex justify-center mb-6"
             >
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                <Scale className="h-8 w-8 text-white" />
-              </div>
+              <Image src={"/fav-icon.png"} alt="logo" width={80} height={80} />
             </motion.div>
             <motion.h2
               initial={{ opacity: 0, y: 20 }}
@@ -333,7 +332,7 @@ const SignupPage = () => {
             initial={{ opacity: 0, y: 30 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.8, delay: 0.5 }}
-            className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8"
+            className="bg-white rounded-3xl shadow-xl border border-gray-100 sm:px-8 py-8 px-3"
           >
             <form className="space-y-6" onSubmit={handleSubmit}>
               {/* Name */}

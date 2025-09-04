@@ -3,7 +3,6 @@
 import type React from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
-  Scale,
   Eye,
   EyeOff,
   Mail,
@@ -22,6 +21,7 @@ import { useState, useEffect } from "react";
 import Link from "next/link";
 import { signIn } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import Image from "next/image";
 
 const LoginPage = () => {
   const [showPassword, setShowPassword] = useState(false);
@@ -104,7 +104,7 @@ const LoginPage = () => {
 
         {/* Animated Grid Pattern */}
         <div className="absolute inset-0 opacity-10">
-          <div className="grid grid-cols-8 gap-4 h-full w-full p-8">
+          <div className="grid grid-cols-8 gap-4 h-full w-full py-8 px-2 sm:py-8 sm:px-8">
             {Array.from({ length: 64 }).map((_, i) => (
               <motion.div
                 key={i}
@@ -124,7 +124,7 @@ const LoginPage = () => {
         </div>
 
         {/* Tagline Content */}
-        <div className="relative z-10 text-center px-8 lg:px-16">
+        <div className="relative z-10 text-center px-3 lg:px-16">
           <AnimatePresence mode="wait">
             <motion.div
               key={currentTaglineIndex}
@@ -157,7 +157,7 @@ const LoginPage = () => {
       </div>
 
       {/* Left Side - Login Form */}
-      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8 order-1 lg:order-1 min-h-screen">
+      <div className="lg:w-1/2 bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center py-8 px-4 order-1 lg:order-1 min-h-screen">
         <motion.div
           initial={{ opacity: 0, x: -50 }}
           animate={{ opacity: 1, x: 0 }}
@@ -175,9 +175,7 @@ const LoginPage = () => {
           {/* Logo and Header */}
           <div className="text-center mb-8">
             <div className="flex justify-center mb-6">
-              <div className="bg-gradient-to-r from-blue-600 to-indigo-600 p-3 rounded-2xl shadow-lg">
-                <Scale className="h-8 w-8 text-white" />
-              </div>
+              <Image src={"/fav-icon.png"} alt="logo" width={80} height={80} />
             </div>
             <h2 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome Back
@@ -200,7 +198,7 @@ const LoginPage = () => {
           )}
 
           {/* Login Form */}
-          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 p-8">
+          <div className="bg-white rounded-3xl shadow-xl border border-gray-100 sm:py-8 sm:px-8 py-8 px-3">
             <div className="space-y-6">
               {/* Email Field */}
               <div>
