@@ -2,8 +2,6 @@
 
 import { motion } from "framer-motion";
 import { Upload, Brain, BarChart3, FileText, Home } from "lucide-react";
-import Image from "next/image";
-import Link from "next/link";
 import { type AnalysisResultShape } from "@/lib/types";
 
 type ViewState = "upload" | "processing" | "results";
@@ -32,18 +30,6 @@ const DesktopSidebar: React.FC<DesktopSidebarProps> = ({
   return (
     <div className="hidden lg:flex lg:w-80 bg-white/80 backdrop-blur-md border-r border-gray-200 flex-col">
       <div className="p-8 border-b border-gray-200">
-        <div className="flex items-center gap-4 mb-6">
-          <Link href="/">
-            <Image
-              src="/logo.png"
-              alt="Legalyze AI"
-              width={120}
-              height={110}
-              className="w-[120px] h-auto"
-            />
-          </Link>
-        </div>
-
         <div className="space-y-3">
           {navigationItems.map((item, index) => (
             <div key={item.id} className="flex items-center gap-3">

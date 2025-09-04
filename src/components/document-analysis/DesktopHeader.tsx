@@ -6,19 +6,7 @@ import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import ProfileDropdown from "./ProfileDropdown";
-
-interface NavItem {
-  name: string;
-  href: string;
-}
-
-const NAV_ITEMS: NavItem[] = [
-  { name: "Features", href: "#features" },
-  { name: "How it Works", href: "#how-it-works" },
-  { name: "Use Cases", href: "#use-cases" },
-  { name: "Pricing", href: "#pricing" },
-];
+import ProfileDropdown from "../ProfileDropdown";
 
 const headerVariants: Variants = {
   hidden: { y: -100, opacity: 0 },
@@ -52,18 +40,10 @@ const mobileMenuVariants: Variants = {
   },
 };
 
-const Header: React.FC = () => {
+const DesktopHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
-
-  const scrollToSection = useCallback((href: string) => {
-    const element = document.querySelector(href);
-    if (element) {
-      element.scrollIntoView({ behavior: "smooth", block: "start" });
-    }
-    setIsMenuOpen(false);
-  }, []);
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -128,27 +108,6 @@ const Header: React.FC = () => {
             </Link>
           </motion.div>
 
-          {/* Desktop Navigation */}
-          <nav className="hidden md:flex items-center space-x-8">
-            {NAV_ITEMS.map((item, index) => (
-              <motion.button
-                key={item.name}
-                initial={{ y: -20, opacity: 0 }}
-                animate={{ y: 0, opacity: 1 }}
-                transition={{
-                  duration: 0.6,
-                  delay: 0.2 + index * 0.1,
-                  ease: [0.4, 0, 0.2, 1],
-                }}
-                onClick={() => scrollToSection(item.href)}
-                className="relative text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium group cursor-pointer  rounded-md px-2 py-1"
-              >
-                {item.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-200 rounded-full" />
-              </motion.button>
-            ))}
-          </nav>
-
           {/* Desktop CTA */}
           <motion.div
             initial={{ x: 50, opacity: 0 }}
@@ -194,13 +153,6 @@ const Header: React.FC = () => {
                 Login
               </Link>
             )}
-
-            <Link
-              href={session ? "/document-analysis" : "/signup"}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-            >
-              {session ? "Try Now" : "Get Started"}
-            </Link>
           </motion.div>
 
           {/* Mobile Menu Button */}
@@ -250,24 +202,6 @@ const Header: React.FC = () => {
               className="md:hidden border-t border-gray-200 bg-white"
             >
               <div className="py-4 space-y-2">
-                {/* Navigation Items */}
-                {NAV_ITEMS.map((item, index) => (
-                  <motion.button
-                    key={item.name}
-                    initial={{ x: -20, opacity: 0 }}
-                    animate={{ x: 0, opacity: 1 }}
-                    transition={{
-                      duration: 0.3,
-                      delay: index * 0.1,
-                      ease: [0.4, 0, 0.2, 1],
-                    }}
-                    onClick={() => scrollToSection(item.href)}
-                    className="block w-full text-left px-4 py-3 text-gray-700 hover:bg-gray-50 hover:text-blue-600 transition-colors duration-200 rounded-md mx-2"
-                  >
-                    {item.name}
-                  </motion.button>
-                ))}
-
                 {/* Mobile Profile Section */}
                 <div className="pt-4 border-t border-gray-200 mx-4">
                   {status === "loading" ? (
@@ -317,15 +251,6 @@ const Header: React.FC = () => {
                       Login
                     </Link>
                   )}
-
-                  {/* CTA Button */}
-                  <Link
-                    href={session ? "/document-analysis" : "/signup"}
-                    onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-3"
-                  >
-                    {session ? "Try Now" : "Get Started"}
-                  </Link>
                 </div>
               </div>
             </motion.div>
@@ -336,4 +261,4 @@ const Header: React.FC = () => {
   );
 };
 
-export default Header;
+export default DesktopHeader;

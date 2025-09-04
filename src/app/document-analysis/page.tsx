@@ -9,13 +9,13 @@ import {
   type AnalysisResultShape,
   parseStreamData,
 } from "@/lib/types";
-import MobileHeader from "@/components/document-analysis/MobileHeader";
 import DesktopSidebar from "@/components/document-analysis/DesktopSidebar";
 import UploadView from "@/components/document-analysis/UploadView";
 import ProcessingView from "@/components/document-analysis/ProcessingView";
 import ResultsView from "@/components/document-analysis/ResultsView";
 import MobileBottomNav from "@/components/document-analysis/MobileBottomNav";
 import AuthRequired from "@/components/auth-gate";
+import DesktopHeader from "@/components/document-analysis/DesktopHeader";
 
 type ViewState = "upload" | "processing" | "results";
 
@@ -165,13 +165,9 @@ const LegalAnalysisComponent: React.FC = () => {
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
-      <MobileHeader
-        currentView={currentView}
-        analysisResult={analysisResult}
-        resetState={resetState}
-      />
+      <DesktopHeader />
 
-      <div className="flex flex-1">
+      <div className="flex flex-1 mt-16">
         <DesktopSidebar
           currentView={currentView}
           file={file}
