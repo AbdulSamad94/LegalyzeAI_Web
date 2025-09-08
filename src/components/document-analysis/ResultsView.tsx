@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
 import {
   AlertTriangle,
@@ -14,11 +14,24 @@ import {
   TrendingUp,
   Zap,
   Target,
+  Languages,
 } from "lucide-react";
 import { type RiskLevel, type AnalysisResultShape } from "@/lib/types";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 interface ResultsViewProps {
   analysisResult: AnalysisResultShape;
+}
+
+interface TranslatedContent {
+  verdict: string;
+  summary: string;
+  risks: Array<{
+    description: string;
+    recommendation: string;
+    level: RiskLevel;
+    category: string;
+  }>;
 }
 
 const getRiskColor = (level: RiskLevel): string => {
@@ -34,6 +47,49 @@ const getRiskColor = (level: RiskLevel): string => {
 
 const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
   const [activeTab, setActiveTab] = useState<"summary" | "risks">("summary");
+  const [translatedContent, setTranslatedContent] =
+    useState<TranslatedContent | null>(null);
+  const [localIsTranslating, setLocalIsTranslating] = useState(false);
+  const { language, translateText } = useLanguage();
+
+  useEffect(() => {
+    const translateContent = async () => {
+      if (language === "en" || analysisResult.type !== "legal_analysis") {
+        setTranslatedContent(null);
+        return;
+      }
+
+      setLocalIsTranslating(true);
+
+      try {
+        const [translatedVerdict, translatedSummary] = await Promise.all([
+          translateText(analysisResult.analysis.verdict),
+          translateText(analysisResult.analysis.summary),
+        ]);
+
+        const translatedRisks = await Promise.all(
+          analysisResult.analysis.risks.map(async (risk) => ({
+            ...risk,
+            description: await translateText(risk.description),
+            recommendation: await translateText(risk.recommendation),
+          }))
+        );
+
+        setTranslatedContent({
+          verdict: translatedVerdict,
+          summary: translatedSummary,
+          risks: translatedRisks,
+        });
+      } catch (error) {
+        console.error("Translation failed:", error);
+        setTranslatedContent(null);
+      } finally {
+        setLocalIsTranslating(false);
+      }
+    };
+
+    translateContent();
+  }, [language, analysisResult, translateText]);
 
   if (analysisResult.type !== "legal_analysis") {
     return (
@@ -49,6 +105,12 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
     );
   }
 
+  const displayContent =
+    translatedContent && language === "ur"
+      ? translatedContent
+      : analysisResult.analysis;
+  const isTranslating = localIsTranslating;
+
   return (
     <motion.div
       key="results"
@@ -57,7 +119,21 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
       exit={{ opacity: 0, y: -20 }}
       className="space-y-6 sm:space-y-8"
     >
-      {/* Results Header */}
+      {/* Translation Status Indicator */}
+      {isTranslating && language === "ur" && (
+        <motion.div
+          initial={{ opacity: 0, y: -10 }}
+          animate={{ opacity: 1, y: 0 }}
+          className="bg-blue-50 border border-blue-200 rounded-xl p-3 flex items-center gap-3"
+        >
+          <Languages className="h-5 w-5 text-blue-600 animate-spin" />
+          <span className="text-blue-700 font-medium">
+            Translating content to Urdu...
+          </span>
+        </motion.div>
+      )}
+
+      {/* Results Header - UI stays in English */}
       <div className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl p-6 sm:p-8 lg:p-12 text-white shadow-2xl">
         <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4 sm:gap-6 mb-6 sm:mb-8">
           <div className="flex items-center gap-3 sm:gap-4">
@@ -91,19 +167,25 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
           </div>
         </div>
 
-        {/* AI Verdict */}
+        {/* AI Verdict - ONLY the content text gets translated */}
         <div className="bg-white/10 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 backdrop-blur-sm">
           <div className="flex items-center gap-2 sm:gap-3 mb-3 sm:mb-4">
             <Brain className="h-6 w-6 sm:h-8 sm:w-8 text-white flex-shrink-0" />
             <h3 className="text-xl sm:text-2xl font-bold">AI Verdict</h3>
           </div>
-          <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-blue-50">
-            {analysisResult.analysis.verdict}
-          </p>
+          <div
+            className={`${
+              isTranslating && language === "ur" ? "opacity-50" : ""
+            } transition-opacity duration-300`}
+          >
+            <p className="text-base sm:text-lg lg:text-xl leading-relaxed text-blue-50">
+              {displayContent.verdict}
+            </p>
+          </div>
         </div>
       </div>
 
-      {/* Quick Stats */}
+      {/* Quick Stats - UI stays in English */}
       <div className="grid grid-cols-1 sm:grid-cols-3 gap-4 sm:gap-6">
         {[
           {
@@ -147,7 +229,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
 
       {/* Detailed Results */}
       <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-2xl border border-white/20 overflow-hidden">
-        {/* Mobile Tabs */}
+        {/* Mobile Tabs - UI stays in English */}
         <div className="sm:hidden">
           <div className="relative">
             <select
@@ -166,7 +248,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
           </div>
         </div>
 
-        {/* Desktop Tabs */}
+        {/* Desktop Tabs - UI stays in English */}
         <div className="hidden sm:flex border-b border-gray-200">
           <motion.button
             whileHover={{ scale: 1.01 }}
@@ -211,9 +293,15 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
                 <h3 className="text-xl sm:text-2xl font-bold text-gray-800 mb-4 sm:mb-6">
                   Document Summary
                 </h3>
-                <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
-                  {analysisResult.analysis.summary}
-                </p>
+                <div
+                  className={`${
+                    isTranslating && language === "ur" ? "opacity-50" : ""
+                  } transition-opacity duration-300`}
+                >
+                  <p className="text-base sm:text-lg text-gray-700 leading-relaxed">
+                    {displayContent.summary}
+                  </p>
+                </div>
               </motion.div>
             ) : (
               <motion.div
@@ -223,13 +311,15 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
                 exit={{ opacity: 0, x: -20 }}
                 className="space-y-4 sm:space-y-6 lg:space-y-8"
               >
-                {analysisResult.analysis.risks.map((risk, index) => (
+                {displayContent.risks.map((risk, index) => (
                   <motion.div
                     key={index}
                     initial={{ opacity: 0, y: 20 }}
                     animate={{ opacity: 1, y: 0 }}
                     transition={{ delay: index * 0.1 }}
-                    className="bg-white border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-all"
+                    className={`bg-white border-2 border-gray-200 rounded-xl sm:rounded-2xl p-4 sm:p-6 lg:p-8 hover:shadow-lg transition-all ${
+                      isTranslating && language === "ur" ? "opacity-50" : ""
+                    }`}
                   >
                     <div className="flex flex-col sm:flex-row sm:items-start sm:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
                       <div className="flex items-center gap-3 sm:gap-4">
@@ -254,6 +344,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
                         </div>
                       </div>
                     </div>
+                    {/* ONLY the content text gets translated */}
                     <p className="text-base sm:text-lg text-gray-700 mb-4 sm:mb-6 leading-relaxed">
                       {risk.description}
                     </p>
@@ -264,6 +355,7 @@ const ResultsView: React.FC<ResultsViewProps> = ({ analysisResult }) => {
                           Recommendation
                         </h5>
                       </div>
+                      {/* ONLY the content text gets translated */}
                       <p className="text-blue-700 text-base sm:text-lg leading-relaxed">
                         {risk.recommendation}
                       </p>

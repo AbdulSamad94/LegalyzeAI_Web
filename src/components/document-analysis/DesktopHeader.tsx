@@ -1,12 +1,13 @@
 "use client";
 
 import { motion, AnimatePresence, Variants } from "framer-motion";
-import { Menu, X, LogOut } from "lucide-react";
+import { Menu, X, LogOut, Languages } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
-import ProfileDropdown from "../ProfileDropdown";
+import ProfileDropdown from "@/components/ProfileDropdown";
+import { useLanguage } from "@/contexts/LanguageContext";
 
 const headerVariants: Variants = {
   hidden: { y: -100, opacity: 0 },
@@ -44,6 +45,8 @@ const DesktopHeader: React.FC = () => {
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
   const { data: session, status } = useSession();
+  // isTranslating state is no longer in the context, so we remove it here
+  const { language, setLanguage } = useLanguage();
 
   useEffect(() => {
     const handleKeyDown = (event: KeyboardEvent) => {
@@ -83,6 +86,10 @@ const DesktopHeader: React.FC = () => {
     setIsProfileDropdownOpen(false);
   }, []);
 
+  const toggleLanguage = useCallback(() => {
+    setLanguage(language === "en" ? "ur" : "en");
+  }, [language, setLanguage]);
+
   return (
     <motion.header
       variants={headerVariants}
@@ -115,6 +122,24 @@ const DesktopHeader: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="hidden md:flex items-center space-x-4"
           >
+            {/* Language Toggle Button */}
+            <motion.button
+              whileHover={{ scale: 1.05 }}
+              whileTap={{ scale: 0.95 }}
+              onClick={toggleLanguage}
+              className={`flex items-center space-x-2 px-3 py-2 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                language === "ur"
+                  ? "bg-blue-100 text-blue-700 border border-blue-200"
+                  : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+              }`}
+              title={`Switch to ${language === "en" ? "Urdu" : "English"}`}
+            >
+              <Languages className={`h-4 w-4`} />
+              <span className="text-sm font-medium">
+                {language === "en" ? "EN" : "اردو"}
+              </span>
+            </motion.button>
+
             {status === "loading" ? (
               <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
             ) : session ? (
@@ -202,6 +227,25 @@ const DesktopHeader: React.FC = () => {
               className="md:hidden border-t border-gray-200 bg-white"
             >
               <div className="py-4 space-y-2">
+                {/* Mobile Language Toggle */}
+                <div className="px-4 pb-4 border-b border-gray-200">
+                  <button
+                    onClick={toggleLanguage}
+                    className={`w-full flex items-center justify-center space-x-2 px-4 py-3 rounded-lg transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 ${
+                      language === "ur"
+                        ? "bg-blue-100 text-blue-700 border border-blue-200"
+                        : "bg-gray-100 text-gray-700 hover:bg-gray-200"
+                    }`}
+                  >
+                    <Languages className={`h-5 w-5`} />
+                    <span className="font-medium">
+                      {language === "en"
+                        ? "Switch to Urdu"
+                        : "Switch to English"}
+                    </span>
+                  </button>
+                </div>
+
                 {/* Mobile Profile Section */}
                 <div className="pt-4 border-t border-gray-200 mx-4">
                   {status === "loading" ? (

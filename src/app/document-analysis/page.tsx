@@ -16,6 +16,7 @@ import ResultsView from "@/components/document-analysis/ResultsView";
 import MobileBottomNav from "@/components/document-analysis/MobileBottomNav";
 import AuthRequired from "@/components/auth-gate";
 import DesktopHeader from "@/components/document-analysis/DesktopHeader";
+import { LanguageProvider } from "@/contexts/LanguageContext";
 
 type ViewState = "upload" | "processing" | "results";
 
@@ -164,49 +165,51 @@ const LegalAnalysisComponent: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
-      <DesktopHeader />
+    <LanguageProvider>
+      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
+        <DesktopHeader />
 
-      <div className="flex flex-1 mt-16">
-        <DesktopSidebar
-          currentView={currentView}
-          file={file}
-          formatFileSize={formatFileSize}
-          analysisResult={analysisResult}
-          resetState={resetState}
-        />
+        <div className="flex flex-1 mt-16">
+          <DesktopSidebar
+            currentView={currentView}
+            file={file}
+            formatFileSize={formatFileSize}
+            analysisResult={analysisResult}
+            resetState={resetState}
+          />
 
-        <div className="flex-1 overflow-auto">
-          <div className="p-4 sm:p-6 lg:p-12 max-w-6xl mx-auto">
-            <AnimatePresence mode="wait">
-              {currentView === "upload" && (
-                <UploadView
-                  file={file}
-                  error={error}
-                  fileInputRef={
-                    fileInputRef as React.RefObject<HTMLInputElement>
-                  }
-                  handleFileSelect={handleFileSelect}
-                  startAnalysis={startAnalysis}
-                  setFile={setFile}
-                  setError={setError}
-                />
-              )}
+          <div className="flex-1 overflow-auto">
+            <div className="p-4 sm:p-6 lg:p-12 max-w-6xl mx-auto">
+              <AnimatePresence mode="wait">
+                {currentView === "upload" && (
+                  <UploadView
+                    file={file}
+                    error={error}
+                    fileInputRef={
+                      fileInputRef as React.RefObject<HTMLInputElement>
+                    }
+                    handleFileSelect={handleFileSelect}
+                    startAnalysis={startAnalysis}
+                    setFile={setFile}
+                    setError={setError}
+                  />
+                )}
 
-              {currentView === "processing" && (
-                <ProcessingView processingUpdates={processingUpdates} />
-              )}
+                {currentView === "processing" && (
+                  <ProcessingView processingUpdates={processingUpdates} />
+                )}
 
-              {currentView === "results" && analysisResult && (
-                <ResultsView analysisResult={analysisResult} />
-              )}
-            </AnimatePresence>
+                {currentView === "results" && analysisResult && (
+                  <ResultsView analysisResult={analysisResult} />
+                )}
+              </AnimatePresence>
+            </div>
           </div>
         </div>
-      </div>
 
-      <MobileBottomNav currentView={currentView} />
-    </div>
+        <MobileBottomNav currentView={currentView} />
+      </div>
+    </LanguageProvider>
   );
 };
 

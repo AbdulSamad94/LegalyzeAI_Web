@@ -4,7 +4,8 @@ import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
 import { SessionProviderWrapper } from "@/components/session/SessionProviderWrapper";
 import { Analytics } from "@vercel/analytics/next";
-import Script from "next/script"; // 👈 add this
+import Script from "next/script";
+import BugReportModal from "@/components/BugReportModal";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
@@ -38,7 +39,6 @@ export default function RootLayout({
     <SessionProviderWrapper>
       <html lang="en" className="scroll-smooth">
         <head>
-          {/* Google Analytics Script */}
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
             strategy="afterInteractive"
@@ -54,7 +54,8 @@ export default function RootLayout({
         </head>
         <body className={plusJakartaSans.className}>
           {children}
-          <Analytics /> {/* Vercel Analytics */}
+          <BugReportModal />
+          <Analytics />
         </body>
       </html>
     </SessionProviderWrapper>
