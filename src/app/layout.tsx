@@ -39,11 +39,18 @@ export default function RootLayout({
     <SessionProviderWrapper>
       <html lang="en" className="scroll-smooth">
         <head>
+          {/* Google Site Verification */}
+          <meta
+            name="google-site-verification"
+            content="i5rgLv46YHMPKalrYwZOpajp-gsbKKVx5PpeH46S1QM"
+          />
+
+          {/* Google Analytics */}
           <Script
             src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-            strategy="afterInteractive"
+            strategy="beforeInteractive"
           />
-          <Script id="google-analytics" strategy="afterInteractive">
+          <Script id="google-analytics" strategy="beforeInteractive">
             {`
               window.dataLayer = window.dataLayer || [];
               function gtag(){dataLayer.push(arguments);}
