@@ -1,7 +1,4 @@
-/**
- * Represents the strict, normalized shape of a single risk item after processing.
- * This is the type that the React components will always work with.
- */
+
 export type RiskLevel = "critical" | "high" | "medium" | "low" | "unknown";
 
 export interface RiskItem {
@@ -12,9 +9,6 @@ export interface RiskItem {
     clause_reference: string;
 }
 
-/**
- * Represents the document metadata.
- */
 export interface DocumentInfo {
     filename: string;
     word_count: number;
@@ -23,9 +17,6 @@ export interface DocumentInfo {
     processed_at: string;
 }
 
-/**
- * Represents the core analysis data after normalization.
- */
 export interface Analysis {
     summary: string;
     risks: RiskItem[];
@@ -33,7 +24,6 @@ export interface Analysis {
     disclaimer: string;
 }
 
-// --- Discriminated Union for the Final, Normalized State ---
 
 export interface LegalAnalysisResult {
     type: "legal_analysis";
@@ -51,7 +41,13 @@ export interface ErrorResult {
 
 export type AnalysisResultShape = LegalAnalysisResult | ErrorResult;
 
-// --- Processing Update Type for the SSE stream ---
+export interface TranslatedRisk {
+    description: string;
+    recommendation: string;
+    level: RiskLevel;
+    category: string;
+}
+
 export interface ProcessingUpdate {
     step: string;
     status: "processing" | "completed" | "failed";
@@ -61,8 +57,21 @@ export interface ProcessingUpdate {
     details?: Record<string, unknown>;
 }
 
+export type ProgressState = "pending" | "translating" | "completed" | "error";
 
-// --- Type Guards and Helper Functions ---
+export interface TranslationProgress {
+    verdict: ProgressState;
+    summary: ProgressState;
+    risks: ProgressState[];
+}
+
+export interface TranslatedContent {
+    verdict: string;
+    summary: string;
+    risks: TranslatedRisk[];
+}
+
+
 function isObject(value: unknown): value is Record<string, unknown> {
     return typeof value === "object" && value !== null && !Array.isArray(value);
 }

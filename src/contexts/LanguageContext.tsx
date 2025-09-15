@@ -6,6 +6,7 @@ import React, {
   useState,
   ReactNode,
   useCallback,
+  useRef,
 } from "react";
 
 interface LanguageContextType {
@@ -19,17 +20,32 @@ const LanguageContext = createContext<LanguageContextType | undefined>(
   undefined
 );
 
-export const useLanguage = () => {
-  const context = useContext(LanguageContext);
-  if (!context) {
+export const useLanguage = (): LanguageContextType => {
+  const ctx = useContext(LanguageContext);
+  if (!ctx)
     throw new Error("useLanguage must be used within a LanguageProvider");
-  }
-  return context;
+  return ctx;
 };
 
 interface LanguageProviderProps {
   children: ReactNode;
 }
+
+interface TranslateApiSuccess {
+  success: true;
+  translatedText: string;
+  chunksProcessed: number;
+  fallback?: boolean;
+  geminiUsed?: boolean;
+}
+
+interface TranslateApiFailure {
+  success: false;
+  error: string;
+  details?: string;
+}
+
+type TranslateApiResponse = TranslateApiSuccess | TranslateApiFailure;
 
 export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   children,
@@ -37,55 +53,58 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const [language, setLanguage] = useState<"en" | "ur">("en");
   const [isTranslating, setIsTranslating] = useState(false);
 
-  // NO UI DIRECTION CHANGES - Keep UI in LTR, only translate content
+  const cacheRef = useRef<Map<string, string>>(new Map());
 
   const translateText = useCallback(
     async (text: string): Promise<string> => {
-      // No need to translate if the target language is English or text is empty
-      if (language === "en" || !text.trim()) {
-        return text;
+      if (language === "en" || !text.trim()) return text;
+
+      const cacheKey = text;
+      const cache = cacheRef.current;
+      if (cache.has(cacheKey)) {
+        return cache.get(cacheKey)!;
       }
 
-      // Set translating state
       setIsTranslating(true);
-
       try {
-        // Call our own backend API route
-        const response = await fetch("/api/translate", {
+        const res = await fetch("/api/translate", {
           method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({
-            text: text,
-            source: "en",
-            target: "ur",
-          }),
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ text, source: "en", target: "ur" }),
         });
 
-        if (!response.ok) {
+        if (!res.ok) {
+          console.warn("Translation API returned status", res.status);
+          return text;
+        }
+
+        const data = (await res.json()) as TranslateApiResponse;
+
+        if (data.success) {
+          const translated = data.translatedText;
+          cache.set(cacheKey, translated);
+
+          if (data.chunksProcessed && data.chunksProcessed > 1) {
+            console.log(
+              `[Translation] translated with ${data.chunksProcessed} chunks`
+            );
+          }
+          if (data.fallback)
+            console.log("[Translation] used fallback dictionary");
+          if (data.geminiUsed)
+            console.log("[Translation] Gemini processed the request");
+
+          return translated;
+        } else {
           console.warn(
-            `Translation failed with status ${response.status}, falling back to original text`
+            "Translation API error:",
+            data.error,
+            data.details ?? ""
           );
           return text;
         }
-
-        const data = await response.json();
-
-        if (data.success && data.translatedText) {
-          if (data.fallback) {
-            console.info(
-              "Using fallback translation for:",
-              text.substring(0, 50)
-            );
-          }
-          return data.translatedText;
-        } else {
-          console.warn("Translation response missing translated text:", data);
-          return text;
-        }
-      } catch (error) {
-        console.warn("Translation request error:", error);
+      } catch (err) {
+        console.error("Translation request failed:", err);
         return text;
       } finally {
         setIsTranslating(false);
@@ -97,13 +116,15 @@ export const LanguageProvider: React.FC<LanguageProviderProps> = ({
   const handleSetLanguage = useCallback((lang: "en" | "ur") => {
     setLanguage(lang);
     setIsTranslating(false);
+    if (lang === "en") cacheRef.current.clear();
+    console.log(`[Language] switched to ${lang}`);
   }, []);
 
   return (
     <LanguageContext.Provider
       value={{
         language,
-        setLanguage: handleSetLanguage,
+        setLanguage: (handleLanguage) => handleSetLanguage(handleLanguage),
         translateText,
         isTranslating,
       }}

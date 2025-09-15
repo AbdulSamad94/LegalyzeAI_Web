@@ -17,7 +17,7 @@ export const metadata: Metadata = {
   description:
     "Upload contracts, agreements, or NDAs and get instant summaries, risk analysis, and safe/unsafe verdicts powered by advanced AI technology.",
   keywords:
-    "legal AI, document analysis, contract review, legal tech, AI lawyer",
+    "legalyze AI, document analysis, contract review, legal tech, AI lawyer",
   authors: [{ name: "Legalyze AI Team" }],
   openGraph: {
     title: "Legalyze AI - AI-Powered Legal Document Analyzer",
