@@ -1,10 +1,13 @@
+import dynamic from "next/dynamic";
 import HeroSection from "@/components/Hero";
-import HowItWorks from "@/components/HowItWorks";
-import Features from "@/components/Features";
-import UseCases from "@/components/UseCases";
-import DemoSection from "@/components/Demo";
 import Header from "@/components/Header";
 import Footer from "@/components/Footer";
+
+const HowItWorks = dynamic(() => import("@/components/HowItWorks"));
+const Features = dynamic(() => import("@/components/Features"));
+const UseCases = dynamic(() => import("@/components/UseCases"));
+const DemoSection = dynamic(() => import("@/components/Demo"));
+
 // import PricingSection from "@/components/Pricing";
 
 export default function Home() {
