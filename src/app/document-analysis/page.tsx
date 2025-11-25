@@ -12,11 +12,30 @@ import {
 import DesktopSidebar from "@/components/document-analysis/DesktopSidebar";
 import UploadView from "@/components/document-analysis/UploadView";
 import ProcessingView from "@/components/document-analysis/ProcessingView";
-import ResultsView from "@/components/document-analysis/ResultsView";
 import MobileBottomNav from "@/components/document-analysis/MobileBottomNav";
 import AuthRequired from "@/components/auth-gate";
 import DesktopHeader from "@/components/document-analysis/DesktopHeader";
 import { LanguageProvider } from "@/contexts/LanguageContext";
+import dynamic from "next/dynamic";
+
+const ResultsView = dynamic(
+  () => import("@/components/document-analysis/ResultsView"),
+  {
+    loading: () => (
+      <ProcessingView
+        processingUpdates={[
+          {
+            step: "Loading Results",
+            status: "processing",
+            message: "wait/sabar",
+            progress: 20,
+            timestamp: "20",
+          },
+        ]}
+      />
+    ),
+  }
+);
 
 type ViewState = "upload" | "processing" | "results";
 
