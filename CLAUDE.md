@@ -4,8 +4,6 @@
 
 This plan outlines the steps required to build the feature, from the database schema to the final UI.
 
----
-
 ### **Step 1: Update the Database Schema**
 
 - **File:** `src/lib/database/models/Analysis.ts`
