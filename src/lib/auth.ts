@@ -95,10 +95,11 @@ export const authOptions: NextAuthOptions = {
                             existingUser.isEmailVerified = true; // OAuth emails are pre-verified
                             await existingUser.save();
                         }
+                        user.id = existingUser._id.toString(); // Ensure user.id is set to MongoDB _id
                         return true;
                     } else {
                         // Create new user from OAuth
-                        await User.create({
+                        const newUser = await User.create({
                             name: user.name,
                             email: user.email?.toLowerCase(),
                             image: user.image,
@@ -106,6 +107,7 @@ export const authOptions: NextAuthOptions = {
                             providerId: account.providerAccountId,
                             isEmailVerified: true, // OAuth emails are pre-verified
                         });
+                        user.id = newUser._id.toString(); // Ensure user.id is set to MongoDB _id for new user
                         return true;
                     }
                 } catch (error) {
@@ -115,9 +117,17 @@ export const authOptions: NextAuthOptions = {
             }
             return true;
         },
-        async jwt({ token, user }) {
-            if (user) {
-                token.id = user.id;
+        async jwt({ token, user, account }) {
+            // On initial sign-in, whether it's credentials or OAuth
+            if (user && account) {
+                await dbConnect();
+                
+                // Find the user in the database to get the correct MongoDB _id
+                const dbUser = await User.findOne({ email: user.email });
+
+                if (dbUser) {
+                    token.id = dbUser._id.toString();
+                }
             }
             return token;
         },

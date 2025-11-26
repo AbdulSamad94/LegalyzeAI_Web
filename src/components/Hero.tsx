@@ -51,14 +51,16 @@ const HeroSection = () => {
               transition={{ duration: 0.8, delay: 0.2 }}
               className="flex flex-col sm:flex-row gap-4"
             >
+              <Link href={"/document-analysis"} passHref>
               <motion.button
                 whileHover={{ scale: 1.05 }}
                 whileTap={{ scale: 0.95 }}
                 className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-8 py-4 rounded-2xl font-semibold text-lg hover:shadow-xl transition-all duration-300 flex items-center justify-center gap-2 cursor-pointer"
               >
-                <Link href={"/document-analysis"}>Try for Free</Link>
+                Try for Free
                 <ArrowRight className="h-5 w-5" />
               </motion.button>
+            </Link>
 
               <motion.button
                 whileHover={{ scale: 1.05 }}

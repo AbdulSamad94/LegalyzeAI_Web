@@ -1,6 +1,7 @@
 "use client";
 import React, { useState, useEffect } from "react";
 import { motion } from "framer-motion";
+import Link from "next/link";
 import {
   BarChart3,
   FileText,
@@ -21,24 +22,23 @@ import {
   Share2,
 } from "lucide-react";
 
+// Updated interface to match the backend model
 interface AnalysisRecord {
-  id: string;
-  filename: string;
-  type: string;
-  date: string;
-  status: "completed" | "failed" | "processing";
-  risks_count: number;
-  risk_level: "low" | "medium" | "high" | "critical";
-  word_count: number;
+  _id: string;
+  documentName: string;
+  documentType: string;
+  createdAt: string; // Comes as ISO string
+  risks: string[];
+  verdict: string;
 }
 
 interface DashboardStats {
   total_analyses: number;
   this_month: number;
-  avg_risk_level: number;
+  avg_risk_level: number; // Will keep this as a static example for now
   documents_processed: number;
   high_risk_documents: number;
-  processing_time_avg: number;
+  processing_time_avg: number; // Will keep this as a static example for now
 }
 
 const ProductionDashboard = () => {
@@ -55,55 +55,54 @@ const ProductionDashboard = () => {
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
 
-  // Mock data - replace with actual API calls
+  // Fetch real data from the API
   useEffect(() => {
-    const mockAnalyses: AnalysisRecord[] = [
-      {
-        id: "1",
-        filename: "Service_Agreement_2024.pdf",
-        type: "Service Agreement",
-        date: "2024-01-15",
-        status: "completed",
-        risks_count: 3,
-        risk_level: "medium",
-        word_count: 2847,
-      },
-      {
-        id: "2",
-        filename: "NDA_Template.docx",
-        type: "Non-Disclosure Agreement",
-        date: "2024-01-14",
-        status: "completed",
-        risks_count: 1,
-        risk_level: "low",
-        word_count: 1205,
-      },
-      {
-        id: "3",
-        filename: "Employment_Contract.pdf",
-        type: "Employment Agreement",
-        date: "2024-01-13",
-        status: "completed",
-        risks_count: 5,
-        risk_level: "high",
-        word_count: 4231,
-      },
-    ];
+    const fetchAnalyses = async () => {
+      try {
+        setIsLoading(true);
+        const response = await fetch('/api/analyses');
+        const result = await response.json();
 
-    setTimeout(() => {
-      setAnalyses(mockAnalyses);
-      setStats({
-        total_analyses: 156,
-        this_month: 23,
-        avg_risk_level: 2.3,
-        documents_processed: 156,
-        high_risk_documents: 12,
-        processing_time_avg: 32,
-      });
-      setIsLoading(false);
-    }, 1000);
+        if (result.success) {
+          setAnalyses(result.data);
+          
+          // Calculate stats from the fetched data
+          const totalAnalyses = result.data.length;
+          const thisMonthAnalyses = result.data.filter((analysis: AnalysisRecord) => 
+            new Date(analysis.createdAt).getMonth() === new Date().getMonth() &&
+            new Date(analysis.createdAt).getFullYear() === new Date().getFullYear()
+          ).length;
+          const highRiskCount = result.data.filter((a: AnalysisRecord) => getRiskLevel(a.risks.length, a.verdict) === 'high' || getRiskLevel(a.risks.length, a.verdict) === 'critical').length;
+
+          setStats(prev => ({
+            ...prev,
+            total_analyses: totalAnalyses,
+            documents_processed: totalAnalyses,
+            this_month: thisMonthAnalyses,
+            high_risk_documents: highRiskCount,
+          }));
+
+        } else {
+          console.error("Failed to fetch analyses:", result.error);
+          // Handle error display for the user here
+        }
+      } catch (error) {
+        console.error("Error fetching analyses:", error);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+
+    fetchAnalyses();
   }, []);
 
+  const getRiskLevel = (risksCount: number, verdict: string): "low" | "medium" | "high" | "critical" => {
+    if (verdict.toLowerCase().includes('high risk') || verdict.toLowerCase().includes('critical')) return 'critical';
+    if (risksCount > 4) return "high";
+    if (risksCount > 2) return "medium";
+    return "low";
+  };
+  
   const getRiskColor = (level: string) => {
     switch (level) {
       case "critical":
@@ -119,34 +118,28 @@ const ProductionDashboard = () => {
     }
   };
 
-  const getStatusIcon = (status: string) => {
-    switch (status) {
-      case "completed":
-        return <CheckCircle className="h-4 w-4 text-green-500" />;
-      case "failed":
-        return <AlertTriangle className="h-4 w-4 text-red-500" />;
-      case "processing":
-        return <Clock className="h-4 w-4 text-blue-500 animate-spin" />;
-      default:
-        return <FileText className="h-4 w-4 text-gray-500" />;
-    }
+  const getStatusIcon = () => {
+    // All saved analyses are considered 'completed'
+    return <CheckCircle className="h-4 w-4 text-green-500" />;
   };
 
   const filteredAnalyses = analyses.filter((analysis) => {
     const matchesSearch =
-      analysis.filename.toLowerCase().includes(searchTerm.toLowerCase()) ||
-      analysis.type.toLowerCase().includes(searchTerm.toLowerCase());
+      analysis.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+      analysis.documentType.toLowerCase().includes(searchTerm.toLowerCase());
 
     if (!matchesSearch) return false;
+    
+    const riskLevel = getRiskLevel(analysis.risks.length, analysis.verdict);
 
     switch (filter) {
       case "high-risk":
         return (
-          analysis.risk_level === "high" || analysis.risk_level === "critical"
+          riskLevel === "high" || riskLevel === "critical"
         );
       case "recent":
         return (
-          new Date(analysis.date) >
+          new Date(analysis.createdAt) >
           new Date(Date.now() - 7 * 24 * 60 * 60 * 1000)
         );
       default:
@@ -180,10 +173,10 @@ const ProductionDashboard = () => {
               </p>
             </div>
             <div className="flex gap-3">
-              <button className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
+              <Link href="/document-analysis" className="bg-blue-600 text-white px-4 py-2 rounded-lg hover:bg-blue-700 transition-colors flex items-center gap-2">
                 <FileText className="h-4 w-4" />
                 New Analysis
-              </button>
+              </Link>
               <button className="border border-gray-300 text-gray-700 px-4 py-2 rounded-lg hover:bg-gray-50 transition-colors flex items-center gap-2">
                 <Download className="h-4 w-4" />
                 Export Data
@@ -196,6 +189,7 @@ const ProductionDashboard = () => {
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
         {/* Stats Grid */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+          {/* Total Analyses */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -214,12 +208,9 @@ const ProductionDashboard = () => {
                 <BarChart3 className="h-6 w-6 text-blue-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-green-600">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              <span>+12% from last month</span>
-            </div>
           </motion.div>
 
+          {/* This Month */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -237,12 +228,9 @@ const ProductionDashboard = () => {
                 <Calendar className="h-6 w-6 text-green-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-green-600">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              <span>+8% from last month</span>
-            </div>
           </motion.div>
 
+          {/* High Risk Docs */}
           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
@@ -262,13 +250,10 @@ const ProductionDashboard = () => {
                 <AlertTriangle className="h-6 w-6 text-orange-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-orange-600">
-              <AlertTriangle className="h-4 w-4 mr-1" />
-              <span>Requires attention</span>
-            </div>
           </motion.div>
-
-          <motion.div
+          
+          {/* Avg Processing */}
+           <motion.div
             initial={{ opacity: 0, y: 20 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ delay: 0.3 }}
@@ -287,10 +272,6 @@ const ProductionDashboard = () => {
                 <Activity className="h-6 w-6 text-purple-600" />
               </div>
             </div>
-            <div className="mt-4 flex items-center text-sm text-green-600">
-              <TrendingUp className="h-4 w-4 mr-1" />
-              <span>15% faster than before</span>
-            </div>
           </motion.div>
         </div>
 
@@ -303,7 +284,6 @@ const ProductionDashboard = () => {
               </h2>
 
               <div className="flex flex-col sm:flex-row gap-3 w-full sm:w-auto">
-                {/* Search */}
                 <div className="relative">
                   <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <input
@@ -315,7 +295,6 @@ const ProductionDashboard = () => {
                   />
                 </div>
 
-                {/* Filter */}
                 <div className="relative">
                   <Filter className="absolute left-3 top-1/2 transform -translate-y-1/2 h-4 w-4 text-gray-400" />
                   <select
@@ -334,28 +313,26 @@ const ProductionDashboard = () => {
             {/* Analysis List */}
             <div className="mt-6 space-y-3">
               {filteredAnalyses.length > 0 ? (
-                filteredAnalyses.map((analysis, index) => (
+                filteredAnalyses.map((analysis, index) => {
+                  const riskLevel = getRiskLevel(analysis.risks.length, analysis.verdict);
+                  return (
                   <motion.div
-                    key={analysis.id}
+                    key={analysis._id}
                     initial={{ opacity: 0, x: -20 }}
                     animate={{ opacity: 1, x: 0 }}
                     transition={{ delay: index * 0.1 }}
                     className="flex items-center justify-between p-4 bg-gray-50 rounded-lg hover:bg-gray-100 transition-colors"
                   >
                     <div className="flex items-center gap-4">
-                      {getStatusIcon(analysis.status)}
+                      {getStatusIcon()}
                       <div>
                         <h3 className="font-semibold text-gray-900">
-                          {analysis.filename}
+                          {analysis.documentName}
                         </h3>
                         <div className="flex items-center gap-4 text-sm text-gray-600">
-                          <span>{analysis.type}</span>
+                          <span>{analysis.documentType}</span>
                           <span>•</span>
-                          <span>
-                            {analysis.word_count.toLocaleString()} words
-                          </span>
-                          <span>•</span>
-                          <span>{analysis.date}</span>
+                           <span>{new Date(analysis.createdAt).toLocaleDateString()}</span>
                         </div>
                       </div>
                     </div>
@@ -365,34 +342,29 @@ const ProductionDashboard = () => {
                         <div className="flex items-center gap-2">
                           <span
                             className={`px-2 py-1 text-xs font-medium rounded-full ${getRiskColor(
-                              analysis.risk_level
+                              riskLevel
                             )}`}
                           >
-                            {analysis.risk_level.toUpperCase()}
+                            {riskLevel.toUpperCase()}
                           </span>
                           <span className="text-sm text-gray-600">
-                            {analysis.risks_count} risks
+                            {analysis.risks.length} risks
                           </span>
                         </div>
                       </div>
 
                       <div className="flex items-center gap-2">
-                        <button className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
+                        <Link href={`/analyses/${analysis._id}`} passHref className="p-2 text-gray-400 hover:text-blue-600 transition-colors">
                           <Eye className="h-4 w-4" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-green-600 transition-colors">
-                          <Download className="h-4 w-4" />
-                        </button>
-                        <button className="p-2 text-gray-400 hover:text-purple-600 transition-colors">
-                          <Share2 className="h-4 w-4" />
-                        </button>
+                        </Link>
                         <button className="p-2 text-gray-400 hover:text-red-600 transition-colors">
                           <Trash2 className="h-4 w-4" />
                         </button>
                       </div>
                     </div>
                   </motion.div>
-                ))
+                  );
+                })
               ) : (
                 <div className="text-center py-12">
                   <FileText className="h-12 w-12 text-gray-300 mx-auto mb-4" />
@@ -408,70 +380,6 @@ const ProductionDashboard = () => {
               )}
             </div>
           </div>
-        </div>
-
-        {/* Quick Actions */}
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-blue-100 rounded-lg">
-                <Scale className="h-5 w-5 text-blue-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Legal Resources</h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Access legal templates and guides
-            </p>
-            <button className="text-blue-600 font-medium hover:text-blue-700">
-              Browse Resources →
-            </button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.1 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-green-100 rounded-lg">
-                <Users className="h-5 w-5 text-green-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">
-                Expert Consultation
-              </h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Connect with legal professionals
-            </p>
-            <button className="text-green-600 font-medium hover:text-green-700">
-              Find Experts →
-            </button>
-          </motion.div>
-
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.2 }}
-            className="bg-white rounded-xl shadow-sm border border-gray-200 p-6"
-          >
-            <div className="flex items-center gap-3 mb-4">
-              <div className="p-2 bg-purple-100 rounded-lg">
-                <DollarSign className="h-5 w-5 text-purple-600" />
-              </div>
-              <h3 className="font-semibold text-gray-900">Upgrade Plan</h3>
-            </div>
-            <p className="text-gray-600 mb-4">
-              Unlock advanced features and higher limits
-            </p>
-            <button className="text-purple-600 font-medium hover:text-purple-700">
-              View Plans →
-            </button>
-          </motion.div>
         </div>
       </div>
     </div>

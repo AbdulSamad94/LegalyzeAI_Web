@@ -1,4 +1,5 @@
 // models/Analytics.ts
+import { RiskItem } from "@/lib/types";
 import mongoose, { Document, Schema } from "mongoose";
 
 export interface IAnalytics extends Document {
@@ -6,7 +7,7 @@ export interface IAnalytics extends Document {
     documentName: string;
     documentType: string;
     summary: string;
-    risks: string[];
+    risks: RiskItem[];
     verdict: string;
     createdAt: Date;
     updatedAt: Date;
@@ -33,7 +34,13 @@ const AnalyticsSchema = new Schema<IAnalytics>(
             required: true,
         },
         risks: {
-            type: [String],
+            type: [new Schema<RiskItem>({
+                description: { type: String, required: true },
+                level: { type: String, required: true },
+                category: { type: String, required: true },
+                recommendation: { type: String, required: true },
+                clause_reference: { type: String, required: true },
+            })],
             default: [],
         },
         verdict: {

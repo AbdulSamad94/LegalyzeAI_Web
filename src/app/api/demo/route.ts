@@ -6,7 +6,7 @@ export async function POST(req: NextRequest) {
         const file = formData.get("file") as File | null;
 
         if (!file) {
-            return new NextResponse("No file uploaded.", { status: 400 });
+            return NextResponse.json({ success: false, error: "No file uploaded" }, { status: 400 });
         }
 
         const backendFormData = new FormData();
@@ -22,7 +22,7 @@ export async function POST(req: NextRequest) {
         if (!response.ok || !response.body) {
             const errorText = await response.text();
             console.error("FastAPI backend error:", errorText);
-            return new NextResponse(`Error from analysis service: ${errorText}`, { status: response.status });
+            return NextResponse.json({ success: false, error: `Error from analysis service: ${errorText}` }, { status: response.status });
         }
 
         const readableStream = new ReadableStream({
@@ -49,6 +49,6 @@ export async function POST(req: NextRequest) {
 
     } catch (error) {
         console.error("Error in Next.js API route:", error);
-        return new NextResponse("Internal Server Error", { status: 500 });
+        return NextResponse.json({ success: false, error: "Internal Server Error" }, { status: 500 });
     }
 }
