@@ -8,7 +8,7 @@ This plan outlines the steps required to build the feature, from the database sc
 
 ### **Step 1: Update the Database Schema**
 
-- **File:** `src/lib/database/models/Analysis.ts `
+- **File:** `src/lib/database/models/Analysis.ts`
 - **Action:** Add a `userId` field to the `IAnalysis` interface and `AnalysisSchema`. This will link each analysis document to a user.
 - **Details:** The `userId` will be a `mongoose.Schema.Types.ObjectId` and will have a `ref` to the 'User' model. This creates a formal relationship between the two collections in MongoDB.
 
