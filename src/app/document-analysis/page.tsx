@@ -17,6 +17,7 @@ import AuthRequired from "@/components/auth-gate";
 import DesktopHeader from "@/components/document-analysis/DesktopHeader";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import dynamic from "next/dynamic";
+import { PageWrapper } from "@/components/ui/PageWrapper";
 
 const ResultsView = dynamic(
   () => import("@/components/document-analysis/ResultsView"),
@@ -185,7 +186,7 @@ const LegalAnalysisComponent: React.FC = () => {
 
   return (
     <LanguageProvider>
-      <div className="min-h-screen bg-gradient-to-br from-slate-50 via-blue-50 to-indigo-50 flex flex-col">
+      <PageWrapper className="flex flex-col">
         <DesktopHeader />
 
         <div className="flex flex-1 mt-16">
@@ -227,7 +228,7 @@ const LegalAnalysisComponent: React.FC = () => {
         </div>
 
         <MobileBottomNav currentView={currentView} />
-      </div>
+      </PageWrapper>
     </LanguageProvider>
   );
 };
