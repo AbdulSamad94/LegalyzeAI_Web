@@ -2,46 +2,20 @@ import { NextRequest, NextResponse } from 'next/server';
 import dbConnect from '@/lib/database/mongoDB';
 import User from '@/lib/database/models/User';
 import { sendVerificationEmail } from '@/lib/services/emailService';
-import { generateVerificationToken, generateTokenExpiry, validateEmail, validatePassword } from '@/lib/utils/auth';
+import { generateVerificationToken, generateTokenExpiry } from '@/lib/utils/auth';
+import { signupSchema } from '@/lib/validators/auth';
+import { handleApiError } from '@/lib/api-utils';
 
 export async function POST(request: NextRequest) {
     try {
         await dbConnect();
 
         const body = await request.json();
-        const { name, email, password, confirmPassword } = body;
 
-        // Validation
-        if (!name || !email || !password || !confirmPassword) {
-            return NextResponse.json(
-                { success: false, message: 'All fields are required' },
-                { status: 400 }
-            );
-        }
+        // 1. Validate Input (Zod)
+        const { name, email, password } = signupSchema.parse(body);
 
-        if (password !== confirmPassword) {
-            return NextResponse.json(
-                { success: false, message: 'Passwords do not match' },
-                { status: 400 }
-            );
-        }
-
-        if (!validateEmail(email)) {
-            return NextResponse.json(
-                { success: false, message: 'Please enter a valid email address' },
-                { status: 400 }
-            );
-        }
-
-        const passwordValidation = validatePassword(password);
-        if (!passwordValidation.isValid) {
-            return NextResponse.json(
-                { success: false, message: passwordValidation.message },
-                { status: 400 }
-            );
-        }
-
-        // Check if user already exists
+        // 2. Check if user already exists
         const existingUser = await User.findOne({ email: email.toLowerCase() });
         if (existingUser) {
             if (existingUser.isEmailVerified) {
@@ -61,7 +35,6 @@ export async function POST(request: NextRequest) {
 
                 await existingUser.save();
 
-                // Send verification email
                 const emailResult = await sendVerificationEmail(email, verificationToken, name);
 
                 if (!emailResult.success) {
@@ -78,11 +51,10 @@ export async function POST(request: NextRequest) {
             }
         }
 
-        // Generate verification token
+        // 3. Create new user
         const verificationToken = generateVerificationToken();
         const verificationExpiry = generateTokenExpiry(24); // 24 hours
 
-        // Create new user
         const newUser = new User({
             name,
             email: email.toLowerCase(),
@@ -95,7 +67,7 @@ export async function POST(request: NextRequest) {
 
         await newUser.save();
 
-        // Send verification email
+        // 4. Send verification email
         const emailResult = await sendVerificationEmail(email, verificationToken, name);
 
         if (!emailResult.success) {
@@ -113,10 +85,6 @@ export async function POST(request: NextRequest) {
         });
 
     } catch (error) {
-        console.error('Signup error:', error);
-        return NextResponse.json(
-            { success: false, message: 'Internal server error' },
-            { status: 500 }
-        );
+        return handleApiError(error);
     }
 }

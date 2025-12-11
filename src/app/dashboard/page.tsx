@@ -6,24 +6,19 @@ import {
   BarChart3,
   FileText,
   Clock,
-  TrendingUp,
   AlertTriangle,
   CheckCircle,
   Download,
   Filter,
   Search,
   Calendar,
-  Users,
-  DollarSign,
-  Scale,
   Activity,
   Eye,
   Trash2,
-  Share2,
   Plus,
 } from "lucide-react";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { PageWrapper } from "@/components/ui/PageWrapper";
 
 // Updated interface to match the backend model
@@ -167,7 +162,9 @@ const ProductionDashboard = () => {
       <PageWrapper className="flex items-center justify-center">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-600 mx-auto mb-4"></div>
-          <p className="text-slate-600 font-medium">Loading your dashboard...</p>
+          <p className="text-slate-600 font-medium">
+            Loading your dashboard...
+          </p>
         </div>
       </PageWrapper>
     );

@@ -13,7 +13,7 @@ import DesktopSidebar from "@/components/document-analysis/DesktopSidebar";
 import UploadView from "@/components/document-analysis/UploadView";
 import ProcessingView from "@/components/document-analysis/ProcessingView";
 import MobileBottomNav from "@/components/document-analysis/MobileBottomNav";
-import AuthRequired from "@/components/auth-gate";
+import AuthRequired from "@/components/auth/auth-gate";
 import DesktopHeader from "@/components/document-analysis/DesktopHeader";
 import { LanguageProvider } from "@/contexts/LanguageContext";
 import dynamic from "next/dynamic";

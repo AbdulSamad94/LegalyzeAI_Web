@@ -51,6 +51,9 @@ const AnalyticsSchema = new Schema<IAnalytics>(
     { timestamps: true }
 );
 
+// Add index for faster sorting by date (Dashboard use case)
+AnalyticsSchema.index({ createdAt: -1 });
+
 const Analytics =
     mongoose.models.Analytics ||
     mongoose.model<IAnalytics>("Analytics", AnalyticsSchema);

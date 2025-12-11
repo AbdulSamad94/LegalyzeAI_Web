@@ -5,7 +5,7 @@ import "./globals.css";
 import { SessionProviderWrapper } from "@/components/session/SessionProviderWrapper";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
-import BugReportModal from "@/components/BugReportModal";
+import BugReportModal from "@/components/layout/BugReportModal";
 
 const plusJakartaSans = Plus_Jakarta_Sans({
   subsets: ["latin"],
