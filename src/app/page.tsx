@@ -1,14 +1,14 @@
 import dynamic from "next/dynamic";
-import HeroSection from "@/components/Hero";
-import Header from "@/components/Header";
-import Footer from "@/components/Footer";
+import HeroSection from "@/components/home/Hero";
+import Header from "@/components/layout/Header";
+import Footer from "@/components/layout/Footer";
 import { getServerSession } from "next-auth";
 import { authOptions } from "@/lib/auth";
 
-const HowItWorks = dynamic(() => import("@/components/HowItWorks"));
-const Features = dynamic(() => import("@/components/Features"));
-const UseCases = dynamic(() => import("@/components/UseCases"));
-const DemoSection = dynamic(() => import("@/components/Demo"));
+const HowItWorks = dynamic(() => import("@/components/home/HowItWorks"));
+const Features = dynamic(() => import("@/components/home/Features"));
+const UseCases = dynamic(() => import("@/components/home/UseCases"));
+const DemoSection = dynamic(() => import("@/components/home/Demo"));
 
 // import PricingSection from "@/components/Pricing";
 
