@@ -4,9 +4,12 @@ import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import { AnalysisService } from "@/lib/services/analysisService";
 import { handleApiError } from "@/lib/api-utils";
+import User from "@/lib/database/models/User";
+import dbConnect from "@/lib/database/mongoDB";
 
 export async function POST(req: NextRequest) {
     try {
+        await dbConnect();
         const session = await getServerSession(authOptions);
         if (!session || !session.user || !session.user.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -17,6 +20,39 @@ export async function POST(req: NextRequest) {
         }
 
         const userId = new mongoose.Types.ObjectId(session.user.id);
+
+        // Dynamic fetch of user to check limits
+        const user = await User.findById(userId);
+        if (!user) {
+            return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+        }
+
+        const today = new Date();
+        today.setHours(0, 0, 0, 0);
+
+        const lastUploadDate = user.lastUploadDate ? new Date(user.lastUploadDate) : null;
+        if (lastUploadDate) {
+            lastUploadDate.setHours(0, 0, 0, 0);
+        }
+
+        // Check if it's a new day
+        if (!lastUploadDate || lastUploadDate.getTime() < today.getTime()) {
+            user.dailyUploadCount = 0;
+            user.lastUploadDate = new Date();
+        }
+
+        if (user.dailyUploadCount >= 3) {
+            return NextResponse.json({
+                success: false,
+                error: "Daily limit reached. You can only upload 3 documents per day."
+            }, { status: 429 });
+        }
+
+        // Increment usage
+        user.dailyUploadCount += 1;
+        user.lastUploadDate = new Date(); // Update to current time
+        await user.save();
+
         const formData = await req.formData();
         const file = formData.get("file") as File | null;
 

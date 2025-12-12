@@ -7,6 +7,7 @@ import Link from "next/link";
 import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import ProfileDropdown from "../ProfileDropdown";
+import UsageCounter from "../UsageCounter";
 
 interface NavItem {
   name: string;
@@ -127,7 +128,6 @@ const Header: React.FC = () => {
               />
             </Link>
           </motion.div>
-
           {/* Desktop Navigation */}
           <nav className="hidden md:flex items-center space-x-8">
             {NAV_ITEMS.map((item, index) => (
@@ -148,8 +148,6 @@ const Header: React.FC = () => {
               </motion.button>
             ))}
           </nav>
-
-          {/* Desktop CTA */}
           <motion.div
             initial={{ x: 50, opacity: 0 }}
             animate={{ x: 0, opacity: 1 }}
@@ -159,32 +157,37 @@ const Header: React.FC = () => {
             {status === "loading" ? (
               <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
             ) : session ? (
-              <div className="relative">
-                <button
-                  onClick={toggleProfileDropdown}
-                  className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
-                  aria-label="Open profile menu"
-                  aria-expanded={isProfileDropdownOpen}
-                >
-                  <div className="relative">
-                    <Image
-                      src={session.user?.image || "/default-profile.jpg"}
-                      alt={`${session.user?.name || "User"}'s profile`}
-                      className="h-8 w-8 rounded-full ring-2 ring-transparent hover:ring-blue-500 transition-all duration-200"
-                      width={32}
-                      height={32}
-                      priority
-                    />
-                    {/* Online status indicator */}
-                    <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-400 border-2 border-white rounded-full" />
-                  </div>
-                </button>
+              <div className="flex items-center gap-4">
+                {/* Usage Counter */}
+                <UsageCounter />
 
-                {/* Profile Dropdown */}
-                <ProfileDropdown
-                  isOpen={isProfileDropdownOpen}
-                  onClose={closeProfileDropdown}
-                />
+                <div className="relative">
+                  <button
+                    onClick={toggleProfileDropdown}
+                    className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    aria-label="Open profile menu"
+                    aria-expanded={isProfileDropdownOpen}
+                  >
+                    <div className="relative">
+                      <Image
+                        src={session.user?.image || "/default-profile.jpg"}
+                        alt={`${session.user?.name || "User"}'s profile`}
+                        className="h-8 w-8 rounded-full ring-2 ring-transparent hover:ring-blue-500 transition-all duration-200"
+                        width={32}
+                        height={32}
+                        priority
+                      />
+                      {/* Online status indicator */}
+                      <div className="absolute -bottom-0.5 -right-0.5 h-3 w-3 bg-green-400 border-2 border-white rounded-full" />
+                    </div>
+                  </button>
+
+                  {/* Profile Dropdown */}
+                  <ProfileDropdown
+                    isOpen={isProfileDropdownOpen}
+                    onClose={closeProfileDropdown}
+                  />
+                </div>
               </div>
             ) : (
               <Link
@@ -197,12 +200,11 @@ const Header: React.FC = () => {
 
             <Link
               href={session ? "/document-analysis" : "/signup"}
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {session ? "Try Now" : "Get Started"}
             </Link>
           </motion.div>
-
           {/* Mobile Menu Button */}
           <motion.button
             initial={{ scale: 0 }}
@@ -294,6 +296,8 @@ const Header: React.FC = () => {
                             {session.user?.email}
                           </p>
                         </div>
+                        {/* Usage Counter for Mobile */}
+                        <UsageCounter />
                       </div>
 
                       {/* Sign Out Button */}
@@ -322,7 +326,7 @@ const Header: React.FC = () => {
                   <Link
                     href={session ? "/document-analysis" : "/signup"}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-3"
+                    className="block w-full text-center bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-3"
                   >
                     {session ? "Try Now" : "Get Started"}
                   </Link>

@@ -16,6 +16,8 @@ export interface IUser extends Document {
     createdAt: Date;
     updatedAt: Date;
     comparePassword(candidatePassword: string): Promise<boolean>;
+    dailyUploadCount: number;
+    lastUploadDate?: Date;
 }
 
 const UserSchema = new Schema<IUser>({
@@ -74,6 +76,14 @@ const UserSchema = new Schema<IUser>({
         type: Date,
         default: null,
         select: false
+    },
+    dailyUploadCount: {
+        type: Number,
+        default: 0
+    },
+    lastUploadDate: {
+        type: Date,
+        default: null
     }
 }, {
     timestamps: true

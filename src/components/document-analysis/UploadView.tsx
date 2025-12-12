@@ -53,7 +53,7 @@ const UploadView: React.FC<UploadViewProps> = ({
       className="space-y-6 sm:space-y-8"
     >
       <div className="text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl">
           <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
         </div>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-4">
@@ -65,7 +65,7 @@ const UploadView: React.FC<UploadViewProps> = ({
         </p>
       </div>
 
-      <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl border border-white/20 p-6 sm:p-8 lg:p-12">
+      <div className="bg-white/90 backdrop-blur-sm rounded-2xl sm:rounded-3xl shadow-xl border border-white/20 p-6 sm:p-8 lg:p-12 relative overflow-hidden">
         {!file ? (
           <motion.div
             whileHover={{ scale: 1.01 }}
@@ -105,7 +105,7 @@ const UploadView: React.FC<UploadViewProps> = ({
               }}
               className="mb-4 sm:mb-6"
             >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                 <Upload className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
             </motion.div>
@@ -129,7 +129,7 @@ const UploadView: React.FC<UploadViewProps> = ({
               ].map((format) => (
                 <div key={format.type} className="text-center">
                   <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${format.color} rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1 sm:mb-2`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-linear-to-r ${format.color} rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1 sm:mb-2`}
                   >
                     <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
@@ -146,7 +146,7 @@ const UploadView: React.FC<UploadViewProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="text-center space-y-4 sm:space-y-6"
           >
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
               <FileCheck className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
             </div>
             <div>
@@ -167,7 +167,7 @@ const UploadView: React.FC<UploadViewProps> = ({
                 whileHover={{ scale: 1.02 }}
                 whileTap={{ scale: 0.98 }}
                 onClick={startAnalysis}
-                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="h-5 w-5" />
                 Analyze Document
@@ -194,7 +194,7 @@ const UploadView: React.FC<UploadViewProps> = ({
             animate={{ opacity: 1, y: 0 }}
             className="mt-4 sm:mt-6 p-4 sm:p-6 bg-red-50 border-2 border-red-200 text-red-700 rounded-xl flex items-start gap-3"
           >
-            <AlertCircle className="h-5 w-5 flex-shrink-0 mt-0.5" />
+            <AlertCircle className="h-5 w-5 shrink-0 mt-0.5" />
             <p className="font-medium">{error}</p>
           </motion.div>
         )}
