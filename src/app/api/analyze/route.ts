@@ -4,9 +4,13 @@ import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import { AnalysisService } from "@/lib/services/analysisService";
 import { handleApiError } from "@/lib/api-utils";
+import User from "@/lib/database/models/User";
+import dbConnect from "@/lib/database/mongoDB";
+import { DAILY_UPLOAD_LIMIT } from "@/lib/constants/UserConstants";
 
 export async function POST(req: NextRequest) {
     try {
+        await dbConnect();
         const session = await getServerSession(authOptions);
         if (!session || !session.user || !session.user.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
@@ -17,6 +21,31 @@ export async function POST(req: NextRequest) {
         }
 
         const userId = new mongoose.Types.ObjectId(session.user.id);
+
+        // Atomic limit check and increment to prevent race conditions
+        const todayStart = new Date();
+        todayStart.setHours(0, 0, 0, 0);
+
+        // Step 1: Atomically reset the count if the last upload was before today.
+        await User.updateOne(
+            { _id: userId, $or: [{ lastUploadDate: { $lt: todayStart } }, { lastUploadDate: null }] },
+            { $set: { dailyUploadCount: 0 } }
+        );
+
+        // Step 2: Atomically find and increment the user's count if they are under the limit.
+        // We update lastUploadDate on every upload
+        const updatedUser = await User.findOneAndUpdate(
+            { _id: userId, dailyUploadCount: { $lt: DAILY_UPLOAD_LIMIT } },
+            { $inc: { dailyUploadCount: 1 }, $set: { lastUploadDate: new Date() } }
+        );
+
+        if (!updatedUser) {
+            return NextResponse.json({
+                success: false,
+                error: `Daily limit reached. You can only upload ${DAILY_UPLOAD_LIMIT} documents per day.`
+            }, { status: 429 });
+        }
+
         const formData = await req.formData();
         const file = formData.get("file") as File | null;
 

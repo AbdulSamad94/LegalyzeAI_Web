@@ -8,6 +8,7 @@ import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
 import ProfileDropdown from "@/components/ProfileDropdown";
 import { useLanguage } from "@/contexts/LanguageContext";
+import UsageCounter from "../UsageCounter";
 
 const headerVariants: Variants = {
   hidden: { y: -100, opacity: 0 },
@@ -122,6 +123,7 @@ const DesktopHeader: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="hidden md:flex items-center space-x-4"
           >
+            <UsageCounter />
             {/* Language Toggle Button */}
             <motion.button
               whileHover={{ scale: 1.05 }}
@@ -272,6 +274,8 @@ const DesktopHeader: React.FC = () => {
                             {session.user?.email}
                           </p>
                         </div>
+                        {/* Usage Counter for Mobile */}
+                        <UsageCounter />
                       </div>
 
                       {/* Sign Out Button */}
