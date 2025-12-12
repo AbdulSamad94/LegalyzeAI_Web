@@ -4,6 +4,7 @@ import { authOptions } from "@/lib/auth";
 import mongoose from "mongoose";
 import User from "@/lib/database/models/User";
 import dbConnect from "@/lib/database/mongoDB";
+import { DAILY_UPLOAD_LIMIT } from "@/lib/constants/UserConstants";
 
 export async function GET(req: NextRequest) {
     try {
@@ -43,7 +44,7 @@ export async function GET(req: NextRequest) {
         return NextResponse.json({
             success: true,
             dailyUploadCount,
-            limit: 3
+            limit: DAILY_UPLOAD_LIMIT
         });
 
     } catch (error) {
