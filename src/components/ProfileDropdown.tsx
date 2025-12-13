@@ -110,10 +110,11 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         <div className="py-1">
           <Link
             href="/dashboard"
+            onClick={onClose}
             className="cursor-pointer w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
           >
             <User className="h-4 w-4 mr-3 text-gray-400" />
-            <span>View Profile</span>
+            <span>Dashboard</span>
           </Link>
 
           <button
