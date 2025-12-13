@@ -6,6 +6,7 @@ import { useRef, useEffect, useCallback } from "react";
 import { signOut } from "next-auth/react";
 import Image from "next/image";
 import { useSession } from "next-auth/react";
+import Link from "next/link";
 
 interface ProfileDropdownProps {
   isOpen: boolean;
@@ -67,11 +68,6 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
     }
   }, [onClose]);
 
-  const handleProfileClick = useCallback(() => {
-    console.log("Navigate to profile");
-    onClose();
-  }, [onClose]);
-
   const handleSettingsClick = useCallback(() => {
     console.log("Navigate to settings");
     onClose();
@@ -112,17 +108,17 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
         {/* Menu Items */}
         <div className="py-1">
-          <button
-            onClick={handleProfileClick}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
+          <Link
+            href="/dashboard"
+            className="cursor-pointer w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
           >
             <User className="h-4 w-4 mr-3 text-gray-400" />
             <span>View Profile</span>
-          </button>
+          </Link>
 
           <button
             onClick={handleSettingsClick}
-            className="w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
+            className="cursor-pointer w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
           >
             <Settings className="h-4 w-4 mr-3 text-gray-400" />
             <span>Settings</span>
@@ -136,7 +132,7 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
         <div className="py-1">
           <button
             onClick={handleSignOut}
-            className="w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 focus:outline-none focus:bg-red-50"
+            className="cursor-pointer w-full flex items-center px-4 py-2 text-sm text-red-600 hover:bg-red-50 hover:text-red-700 transition-colors duration-150 focus:outline-none focus:bg-red-50"
           >
             <LogOut className="h-4 w-4 mr-3" />
             <span>Sign Out</span>
