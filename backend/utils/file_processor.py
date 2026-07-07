@@ -1,5 +1,6 @@
 """File processing and document extraction utilities."""
 
+import asyncio
 from typing import Tuple, List
 import pdfplumber
 from docx import Document
@@ -75,9 +76,9 @@ class FileProcessor:
         if extension == ".pdf":
             text, name = await FileProcessor._process_pdf(file_content, filename)
         elif extension == ".docx":
-            text, name = FileProcessor._process_docx(file_content, filename)
+            text, name = await asyncio.to_thread(FileProcessor._process_docx, file_content, filename)
         elif extension == ".txt":
-            text, name = FileProcessor._process_text(file_content, filename)
+            text, name = await asyncio.to_thread(FileProcessor._process_text, file_content, filename)
         elif extension in {".png", ".jpg", ".jpeg"}:
             text, name = await FileProcessor._process_image(file_content, filename)
         else:
@@ -95,13 +96,14 @@ class FileProcessor:
     @staticmethod
     async def _process_pdf(file_content: bytes, filename: str) -> Tuple[str, str]:
         """Extract text from PDF"""
-        try:
+        def _extract() -> str:
             from io import BytesIO
             with pdfplumber.open(BytesIO(file_content)) as pdf:
-                text = ""
-                for page in pdf.pages:
-                    text += page.extract_text() or ""
-                return text or "", filename
+                return "".join(page.extract_text() or "" for page in pdf.pages)
+
+        try:
+            text = await asyncio.to_thread(_extract)
+            return text or "", filename
         except Exception as e:
             raise ValueError(f"PDF processing failed: {str(e)}")
 
@@ -128,10 +130,13 @@ class FileProcessor:
     @staticmethod
     async def _process_image(file_content: bytes, filename: str) -> Tuple[str, str]:
         """Extract text from image using OCR"""
-        try:
+        def _ocr() -> str:
             from io import BytesIO
             image = Image.open(BytesIO(file_content))
-            text = pytesseract.image_to_string(image)
+            return pytesseract.image_to_string(image)
+
+        try:
+            text = await asyncio.to_thread(_ocr)
             return text or "", filename
         except Exception as e:
             raise ValueError(f"Image processing failed: {str(e)}")
