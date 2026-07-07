@@ -14,9 +14,14 @@ export async function POST(req: NextRequest) {
 
         const fastApiUrl = `${process.env.WEB_URL}/demo/`;
 
+        // Forward the real visitor IP so the backend's per-IP rate limiter
+        // doesn't see every request as coming from this proxy.
+        const clientIp = req.headers.get("x-forwarded-for") || req.headers.get("x-real-ip") || "unknown";
+
         const response = await fetch(fastApiUrl, {
             method: "POST",
             body: backendFormData,
+            headers: { "X-Forwarded-For": clientIp },
         });
 
         if (!response.ok || !response.body) {

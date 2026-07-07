@@ -1,29 +1,24 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import dbConnect from "@/lib/database/mongoDB";
-import Analytics from "@/lib/database/models/Analysis";
-import mongoose from "mongoose";
+import { getSession } from "@/lib/auth-server";
+import { db } from "@/lib/db/client";
+import { analyses as analysesTable } from "@/lib/db/schema";
+import { desc, eq } from "drizzle-orm";
 
-export async function GET(req: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_req: NextRequest) {
     try {
-        const session = await getServerSession(authOptions);
+        const session = await getSession();
 
-        if (!session || !session.user || !session.user.id) {
+        if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        // Ensure session.user.id is a valid string before creating a new ObjectId
-        if (typeof session.user.id !== 'string' || !mongoose.Types.ObjectId.isValid(session.user.id)) {
-            console.error("[API/analyses] Invalid userId format:", session.user.id);
-            return NextResponse.json({ success: false, error: "Unauthorized: Invalid user ID" }, { status: 401 });
-        }
+        const userAnalyses = await db.query.analyses.findMany({
+            where: eq(analysesTable.userId, session.user.id),
+            orderBy: desc(analysesTable.createdAt),
+        });
 
-        await dbConnect();
-
-        const analyses = await Analytics.find({ userId: session.user.id }).sort({ createdAt: -1 });
-
-        return NextResponse.json({ success: true, data: analyses }, { status: 200 });
+        return NextResponse.json({ success: true, data: userAnalyses }, { status: 200 });
 
     } catch (error) {
         console.error("[API/analyses] Error fetching analyses:", error);

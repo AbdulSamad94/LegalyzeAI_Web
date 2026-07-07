@@ -2,7 +2,6 @@ import type React from "react";
 import type { Metadata } from "next";
 import { Plus_Jakarta_Sans } from "next/font/google";
 import "./globals.css";
-import { SessionProviderWrapper } from "@/components/session/SessionProviderWrapper";
 import { Analytics } from "@vercel/analytics/next";
 import Script from "next/script";
 import BugReportModal from "@/components/layout/BugReportModal";
@@ -36,35 +35,33 @@ export default function RootLayout({
   children: React.ReactNode;
 }) {
   return (
-    <SessionProviderWrapper>
-      <html lang="en" className="scroll-smooth">
-        <head>
-          {/* Google Site Verification */}
-          <meta
-            name="google-site-verification"
-            content="i5rgLv46YHMPKalrYwZOpajp-gsbKKVx5PpeH46S1QM"
-          />
+    <html lang="en" className="scroll-smooth">
+      <head>
+        {/* Google Site Verification */}
+        <meta
+          name="google-site-verification"
+          content="i5rgLv46YHMPKalrYwZOpajp-gsbKKVx5PpeH46S1QM"
+        />
 
-          {/* Google Analytics */}
-          <Script
-            src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
-            strategy="beforeInteractive"
-          />
-          <Script id="google-analytics" strategy="beforeInteractive">
-            {`
-              window.dataLayer = window.dataLayer || [];
-              function gtag(){dataLayer.push(arguments);}
-              gtag('js', new Date());
-              gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
-            `}
-          </Script>
-        </head>
-        <body className={plusJakartaSans.className}>
-          {children}
-          <BugReportModal />
-          <Analytics />
-        </body>
-      </html>
-    </SessionProviderWrapper>
+        {/* Google Analytics */}
+        <Script
+          src={`https://www.googletagmanager.com/gtag/js?id=${process.env.NEXT_PUBLIC_GA_ID}`}
+          strategy="beforeInteractive"
+        />
+        <Script id="google-analytics" strategy="beforeInteractive">
+          {`
+            window.dataLayer = window.dataLayer || [];
+            function gtag(){dataLayer.push(arguments);}
+            gtag('js', new Date());
+            gtag('config', '${process.env.NEXT_PUBLIC_GA_ID}');
+          `}
+        </Script>
+      </head>
+      <body className={plusJakartaSans.className}>
+        {children}
+        <BugReportModal />
+        <Analytics />
+      </body>
+    </html>
   );
 }

@@ -50,12 +50,12 @@ const ProcessingView: React.FC<ProcessingViewProps> = ({
                     stiffness: 500,
                     damping: 30,
                   }}
-                  className="w-12 h-12 sm:w-14 sm:h-14 bg-green-500 rounded-full flex items-center justify-center shadow-lg"
+                  className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-green-500 to-emerald-500 rounded-full flex items-center justify-center shadow-lg"
                 >
                   <CheckCircle className="h-6 w-6 sm:h-7 sm:w-7 text-white" />
                 </motion.div>
               ) : (
-                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-blue-500 rounded-full flex items-center justify-center shadow-lg">
+                <div className="w-12 h-12 sm:w-14 sm:h-14 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-full flex items-center justify-center shadow-lg">
                   <Loader2 className="h-6 w-6 sm:h-7 sm:w-7 text-white animate-spin" />
                 </div>
               )}

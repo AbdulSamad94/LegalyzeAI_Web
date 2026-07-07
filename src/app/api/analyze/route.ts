@@ -1,50 +1,56 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import mongoose from "mongoose";
+import { getSession } from "@/lib/auth-server";
 import { AnalysisService } from "@/lib/services/analysisService";
 import { handleApiError } from "@/lib/api-utils";
-import User from "@/lib/database/models/User";
-import dbConnect from "@/lib/database/mongoDB";
+import { db } from "@/lib/db/client";
+import { user as userTable } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { DAILY_UPLOAD_LIMIT } from "@/lib/constants/UserConstants";
 
 export async function POST(req: NextRequest) {
     try {
-        await dbConnect();
-        const session = await getServerSession(authOptions);
-        if (!session || !session.user || !session.user.id) {
+        const session = await getSession();
+        if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        if (typeof session.user.id !== 'string' || !mongoose.Types.ObjectId.isValid(session.user.id)) {
-            return NextResponse.json({ success: false, error: "Unauthorized: Invalid user ID" }, { status: 401 });
-        }
+        const userId = session.user.id;
 
-        const userId = new mongoose.Types.ObjectId(session.user.id);
-
-        // Atomic limit check and increment to prevent race conditions
+        // Check daily upload limit
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        // Step 1: Atomically reset the count if the last upload was before today.
-        await User.updateOne(
-            { _id: userId, $or: [{ lastUploadDate: { $lt: todayStart } }, { lastUploadDate: null }] },
-            { $set: { dailyUploadCount: 0 } }
-        );
+        // Get current user
+        const currentUser = await db.query.user.findFirst({
+            where: eq(userTable.id, userId),
+        });
 
-        // Step 2: Atomically find and increment the user's count if they are under the limit.
-        // We update lastUploadDate on every upload
-        const updatedUser = await User.findOneAndUpdate(
-            { _id: userId, dailyUploadCount: { $lt: DAILY_UPLOAD_LIMIT } },
-            { $inc: { dailyUploadCount: 1 }, $set: { lastUploadDate: new Date() } }
-        );
+        if (!currentUser) {
+            return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
+        }
 
-        if (!updatedUser) {
+        // Reset count if last upload was before today
+        let uploadCount = currentUser.dailyUploadCount || 0;
+        if (!currentUser.lastUploadDate || new Date(currentUser.lastUploadDate) < todayStart) {
+            uploadCount = 0;
+        }
+
+        // Check if under limit
+        if (uploadCount >= DAILY_UPLOAD_LIMIT) {
             return NextResponse.json({
                 success: false,
                 error: `Daily limit reached. You can only upload ${DAILY_UPLOAD_LIMIT} documents per day.`
             }, { status: 429 });
         }
+
+        // Update user's upload count
+        await db
+            .update(userTable)
+            .set({
+                dailyUploadCount: uploadCount + 1,
+                lastUploadDate: new Date(),
+            })
+            .where(eq(userTable.id, userId));
 
         const formData = await req.formData();
         const file = formData.get("file") as File | null;

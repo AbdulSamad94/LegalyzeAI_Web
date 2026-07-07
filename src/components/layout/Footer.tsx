@@ -8,8 +8,8 @@ import Link from "next/link";
 const Footer = () => {
   const links = [
     { name: "About", href: "#" },
-    { name: "Privacy Policy", href: "#" },
-    { name: "Terms of Service", href: "#" },
+    { name: "Privacy Policy", href: "/privacy" },
+    { name: "Terms of Service", href: "/terms" },
     { name: "Contact", href: "#" },
   ];
 
@@ -18,7 +18,7 @@ const Footer = () => {
     {
       name: "LinkedIn",
       icon: Linkedin,
-      href: "https://www.linkedin.com/in/abdul-samad-siddiqui-0183012b5/",
+      href: "https://www.linkedin.com/in/abdul-samad-siddiqui-d3v/",
     },
     { name: "X", icon: Twitter, href: "https://x.com/abdulsamad77870" },
     {
@@ -49,13 +49,15 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.1 }}
             className="flex items-center space-x-2"
           >
-            <Image
-              src="/logo.png"
-              alt="Legalyze AI Logo"
-              width={100}
-              height={100}
-              className="w-auto h-auto"
-            />
+            <Link href="/">
+              <Image
+                src="/footer-logo.png"
+                alt="LegalyzeAI"
+                width={1000}
+                height={1000}
+                className="h-34 w-auto"
+              />
+            </Link>
           </motion.div>
 
           {/* Links */}
@@ -89,7 +91,7 @@ const Footer = () => {
             transition={{ duration: 0.6, delay: 0.3 }}
             className="flex space-x-5"
           >
-            {socials.map((social, index) => (
+            {socials.map((social) => (
               <Link
                 key={social.name}
                 href={social.href}
@@ -105,7 +107,7 @@ const Footer = () => {
 
         {/* Copyright */}
         <p className="text-center text-gray-500 text-xs md:text-sm pb-6">
-          © 2025 Legalyze AI. All rights reserved.
+          © 2026 Legalyze AI. All rights reserved.
         </p>
       </div>
     </footer>

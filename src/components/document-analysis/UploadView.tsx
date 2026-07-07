@@ -53,7 +53,7 @@ const UploadView: React.FC<UploadViewProps> = ({
       className="space-y-6 sm:space-y-8"
     >
       <div className="text-center">
-        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl">
+        <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl flex items-center justify-center mx-auto mb-4 sm:mb-6 shadow-2xl">
           <Brain className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
         </div>
         <h2 className="text-2xl sm:text-3xl lg:text-4xl font-bold text-gray-800 mb-2 sm:mb-4">
@@ -105,7 +105,7 @@ const UploadView: React.FC<UploadViewProps> = ({
               }}
               className="mb-4 sm:mb-6"
             >
-              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+              <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-blue-500 to-indigo-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
                 <Upload className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
               </div>
             </motion.div>
@@ -129,7 +129,7 @@ const UploadView: React.FC<UploadViewProps> = ({
               ].map((format) => (
                 <div key={format.type} className="text-center">
                   <div
-                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-linear-to-r ${format.color} rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1 sm:mb-2`}
+                    className={`w-10 h-10 sm:w-12 sm:h-12 bg-gradient-to-r ${format.color} rounded-lg sm:rounded-xl flex items-center justify-center mx-auto mb-1 sm:mb-2`}
                   >
                     <FileText className="h-4 w-4 sm:h-5 sm:w-5 text-white" />
                   </div>
@@ -146,7 +146,7 @@ const UploadView: React.FC<UploadViewProps> = ({
             animate={{ opacity: 1, scale: 1 }}
             className="text-center space-y-4 sm:space-y-6"
           >
-            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-linear-to-r from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
+            <div className="w-16 h-16 sm:w-20 sm:h-20 bg-gradient-to-r from-green-500 to-emerald-600 rounded-xl sm:rounded-2xl flex items-center justify-center mx-auto shadow-lg">
               <FileCheck className="h-8 w-8 sm:h-10 sm:w-10 text-white" />
             </div>
             <div>
@@ -164,10 +164,10 @@ const UploadView: React.FC<UploadViewProps> = ({
             </div>
             <div className="flex flex-col sm:flex-row gap-3 sm:gap-4 justify-center">
               <motion.button
-                whileHover={{ scale: 1.02 }}
-                whileTap={{ scale: 0.98 }}
+                whileHover={{ scale: 1.03, boxShadow: "0 20px 40px rgba(37, 99, 235, 0.3)" }}
+                whileTap={{ scale: 0.97 }}
                 onClick={startAnalysis}
-                className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-lg transition-all flex items-center justify-center gap-2"
+                className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 sm:px-8 py-3 sm:py-4 rounded-xl text-base sm:text-lg font-bold hover:shadow-xl transition-all flex items-center justify-center gap-2"
               >
                 <Sparkles className="h-5 w-5" />
                 Analyze Document

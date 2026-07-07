@@ -3,10 +3,10 @@
 import { motion, AnimatePresence, Variants } from "framer-motion";
 import { User, LogOut, Settings } from "lucide-react";
 import { useRef, useEffect, useCallback } from "react";
-import { signOut } from "next-auth/react";
 import Image from "next/image";
-import { useSession } from "next-auth/react";
 import Link from "next/link";
+import { useRouter } from "next/navigation";
+import { authClient } from "@/lib/auth-client";
 
 interface ProfileDropdownProps {
   isOpen: boolean;
@@ -37,8 +37,9 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
   isOpen,
   onClose,
 }) => {
+  const router = useRouter();
   const dropdownRef = useRef<HTMLDivElement>(null);
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   useEffect(() => {
     const handleClickOutside = (event: MouseEvent) => {
@@ -61,12 +62,14 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
 
   const handleSignOut = useCallback(async () => {
     try {
-      await signOut({ callbackUrl: "/" });
+      await authClient.signOut();
       onClose();
+      router.push("/");
+      router.refresh();
     } catch (error) {
       console.error("Sign out error:", error);
     }
-  }, [onClose]);
+  }, [onClose, router]);
 
   const handleSettingsClick = useCallback(() => {
     console.log("Navigate to settings");
@@ -116,14 +119,6 @@ const ProfileDropdown: React.FC<ProfileDropdownProps> = ({
             <User className="h-4 w-4 mr-3 text-gray-400" />
             <span>Dashboard</span>
           </Link>
-
-          <button
-            onClick={handleSettingsClick}
-            className="cursor-pointer w-full flex items-center px-4 py-2 text-sm text-gray-700 hover:bg-gray-50 hover:text-gray-900 transition-colors duration-150 focus:outline-none focus:bg-gray-50"
-          >
-            <Settings className="h-4 w-4 mr-3 text-gray-400" />
-            <span>Settings</span>
-          </button>
         </div>
 
         {/* Divider */}

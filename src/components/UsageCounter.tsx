@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useCallback } from "react";
 
 const UsageCounter = () => {
   const [usage, setUsage] = useState<{
@@ -7,27 +7,38 @@ const UsageCounter = () => {
   } | null>(null);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
-    const fetchUsage = async () => {
-      try {
-        const res = await fetch("/api/user/usage");
-        if (res.ok) {
-          const data = await res.json();
-          if (data.success) {
-            setUsage({
-              dailyUploadCount: data.dailyUploadCount,
-              limit: data.limit,
-            });
-          }
+  const fetchUsage = useCallback(async () => {
+    try {
+      const res = await fetch("/api/user/usage");
+      if (res.ok) {
+        const data = await res.json();
+        if (data.success) {
+          setUsage({
+            dailyUploadCount: data.dailyUploadCount,
+            limit: data.limit,
+          });
         }
-      } catch (e) {
-        console.error("Failed to fetch usage stats", e);
-      } finally {
-        setLoading(false);
       }
-    };
-    fetchUsage();
+    } catch (e) {
+      console.error("Failed to fetch usage stats", e);
+    } finally {
+      setLoading(false);
+    }
   }, []);
+
+  useEffect(() => {
+    fetchUsage();
+  }, [fetchUsage]);
+
+  // Listen for upload completion events
+  useEffect(() => {
+    const handleUploadComplete = () => {
+      fetchUsage();
+    };
+
+    window.addEventListener("upload-complete", handleUploadComplete);
+    return () => window.removeEventListener("upload-complete", handleUploadComplete);
+  }, [fetchUsage]);
 
   if (loading) {
     return (

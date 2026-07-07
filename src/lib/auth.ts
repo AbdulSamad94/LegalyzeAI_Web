@@ -1,151 +1,71 @@
-import { NextAuthOptions, User as NextAuthUser } from "next-auth";
-import GoogleProvider from "next-auth/providers/google";
-import GitHubProvider from "next-auth/providers/github";
-import CredentialsProvider from "next-auth/providers/credentials";
-import dbConnect from "@/lib/database/mongoDB";
-import User from "@/lib/database/models/User";
-import { sanitizeUser } from "@/lib/utils/auth";
+import { betterAuth } from "better-auth";
+import { drizzleAdapter } from "better-auth/adapters/drizzle";
+import { db } from "@/lib/db/client";
+import { sendVerificationEmail } from "@/lib/services/emailService";
 
-declare module "next-auth" {
-    interface Session {
-        user: {
-            id?: string;
-            name?: string | null;
-            email?: string | null;
-            image?: string | null;
-        };
-    }
-    interface AppUser extends NextAuthUser {
-        id: string;
-    }
-}
-
-export const authOptions: NextAuthOptions = {
-    providers: [
-        GoogleProvider({
-            clientId: process.env.GOOGLE_CLIENT_ID!,
-            clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
-        }),
-        GitHubProvider({
-            clientId: process.env.GITHUB_CLIENT_ID!,
-            clientSecret: process.env.GITHUB_CLIENT_SECRET!,
-        }),
-        CredentialsProvider({
-            name: "credentials",
-            credentials: {
-                email: { label: "Email", type: "email" },
-                password: { label: "Password", type: "password" }
-            },
-            async authorize(credentials) {
-                if (!credentials?.email || !credentials?.password) {
-                    throw new Error("Please enter both email and password");
-                }
-
-                try {
-                    await dbConnect();
-
-                    // Find user and include password for comparison
-                    const user = await User.findOne({
-                        email: credentials.email.toLowerCase()
-                    }).select('+password');
-
-                    if (!user) {
-                        throw new Error("No user found with this email address");
-                    }
-
-                    // Check if user registered with credentials
-                    if (user.provider !== 'credentials') {
-                        throw new Error(`Please sign in with ${user.provider}`);
-                    }
-
-                    // Check if email is verified
-                    if (!user.isEmailVerified) {
-                        throw new Error("Please verify your email before signing in");
-                    }
-
-                    // Check password
-                    const isPasswordValid = await user.comparePassword(credentials.password);
-                    if (!isPasswordValid) {
-                        throw new Error("Invalid password");
-                    }
-
-                    // Return user data (password will be excluded by sanitizeUser)
-                    return sanitizeUser(user);
-                } catch (error) {
-                    console.error("Credentials authorization error:", error);
-                    throw error;
-                }
-            }
-        })
-    ],
-    callbacks: {
-        async signIn({ user, account }) {
-            if (account?.provider === "google" || account?.provider === "github") {
-                try {
-                    await dbConnect();
-
-                    const existingUser = await User.findOne({ email: user.email });
-
-                    if (existingUser) {
-                        // Update existing user with OAuth info if needed
-                        if (existingUser.provider !== account.provider) {
-                            existingUser.provider = account.provider as 'google' | 'github';
-                            existingUser.providerId = account.providerAccountId;
-                            existingUser.image = user.image;
-                            existingUser.isEmailVerified = true; // OAuth emails are pre-verified
-                            await existingUser.save();
-                        }
-                        user.id = existingUser._id.toString(); // Ensure user.id is set to MongoDB _id
-                        return true;
-                    } else {
-                        // Create new user from OAuth
-                        const newUser = await User.create({
-                            name: user.name,
-                            email: user.email?.toLowerCase(),
-                            image: user.image,
-                            provider: account.provider,
-                            providerId: account.providerAccountId,
-                            isEmailVerified: true, // OAuth emails are pre-verified
-                        });
-                        user.id = newUser._id.toString(); // Ensure user.id is set to MongoDB _id for new user
-                        return true;
-                    }
-                } catch (error) {
-                    console.error("OAuth sign in error:", error);
-                    return false;
-                }
-            }
-            return true;
-        },
-        async jwt({ token, user, account }) {
-            // On initial sign-in, whether it's credentials or OAuth
-            if (user && account) {
-                await dbConnect();
-                
-                // Find the user in the database to get the correct MongoDB _id
-                const dbUser = await User.findOne({ email: user.email });
-
-                if (dbUser) {
-                    token.id = dbUser._id.toString();
-                }
-            }
-            return token;
-        },
-        async session({ session, token }) {
-            if (token) {
-                if (session.user) {
-                    session.user.id = token.id as string;
-                }
-            }
-            return session;
-        }
+export const auth = betterAuth({
+  appName: "LegalyzeAI",
+  baseURL: process.env.BETTER_AUTH_URL,
+  secret: process.env.BETTER_AUTH_SECRET,
+  database: drizzleAdapter(db, {
+    provider: "pg",
+  }),
+  socialProviders: {
+    google: {
+      clientId: process.env.GOOGLE_CLIENT_ID!,
+      clientSecret: process.env.GOOGLE_CLIENT_SECRET!,
     },
-    pages: {
-        signIn: '/login',
-        error: '/auth/error',
+    github: {
+      clientId: process.env.GITHUB_CLIENT_ID!,
+      clientSecret: process.env.GITHUB_CLIENT_SECRET!,
     },
-    session: {
-        strategy: "jwt",
+  },
+  session: {
+    expiresIn: 60 * 60 * 24 * 7, // 7 days
+    updateAge: 60 * 60 * 24, // update every 24h
+    cookieCache: {
+      enabled: true,
+      maxAge: 5 * 60, // 5 minutes
     },
-    secret: process.env.NEXTAUTH_SECRET,
-};
+  },
+  user: {
+    additionalFields: {
+      dailyUploadCount: {
+        type: "number",
+        defaultValue: 0,
+      },
+      lastUploadDate: {
+        type: "date",
+      },
+    },
+  },
+  trustedOrigins: [
+    "http://localhost:3000",
+    "https://legalyze-ai.vercel.app",
+    "https://*.vercel.app",
+  ],
+  account: {
+    accountLinking: {
+      enabled: true,
+      trustedProviders: ["google", "github"],
+      allowDifferentEmails: false,
+    },
+  },
+  emailVerification: {
+    sendVerificationEmail: async ({ user, token }) => {
+      await sendVerificationEmail(user.email, token, user.name || "User");
+    },
+    sendOnSignUp: true,
+    autoSignInAfterVerification: true,
+  },
+  emailAndPassword: {
+    enabled: true,
+    requireEmailVerification: true,
+    sendResetPassword: async ({ user, url }) => {
+      console.log(`Password reset link for ${user.email}: ${url}`);
+    },
+  },
+  advanced: {
+    useSecureCookies: process.env.NODE_ENV === "production",
+  },
+});

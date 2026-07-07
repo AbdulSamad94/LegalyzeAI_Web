@@ -4,10 +4,11 @@ import { motion, AnimatePresence, Variants } from "framer-motion";
 import { Menu, X, LogOut } from "lucide-react";
 import { useState, useEffect, useCallback } from "react";
 import Link from "next/link";
-import { useSession, signOut } from "next-auth/react";
 import Image from "next/image";
+import { useRouter } from "next/navigation";
 import ProfileDropdown from "../ProfileDropdown";
 import UsageCounter from "../UsageCounter";
+import { authClient } from "@/lib/auth-client";
 
 interface NavItem {
   name: string;
@@ -54,9 +55,10 @@ const mobileMenuVariants: Variants = {
 };
 
 const Header: React.FC = () => {
+  const router = useRouter();
   const [isMenuOpen, setIsMenuOpen] = useState(false);
   const [isProfileDropdownOpen, setIsProfileDropdownOpen] = useState(false);
-  const { data: session, status } = useSession();
+  const { data: session } = authClient.useSession();
 
   const scrollToSection = useCallback((href: string) => {
     const element = document.querySelector(href);
@@ -121,10 +123,10 @@ const Header: React.FC = () => {
             <Link href="/">
               <Image
                 src="/logo.png"
-                alt="Veridict AI"
-                width={110}
-                height={110}
-                className="h-full w-full"
+                alt="LegalyzeAI"
+                width={1000}
+                height={1000}
+                className="h-24 w-auto"
               />
             </Link>
           </motion.div>
@@ -141,10 +143,9 @@ const Header: React.FC = () => {
                   ease: [0.4, 0, 0.2, 1],
                 }}
                 onClick={() => scrollToSection(item.href)}
-                className="relative text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium group cursor-pointer  rounded-md px-2 py-1"
+                className="text-gray-700 hover:text-blue-600 transition-colors duration-200 font-medium cursor-pointer rounded-md px-2 py-1"
               >
                 {item.name}
-                <span className="absolute bottom-0 left-0 w-0 h-0.5 bg-blue-600 group-hover:w-full transition-all duration-200 rounded-full" />
               </motion.button>
             ))}
           </nav>
@@ -154,9 +155,7 @@ const Header: React.FC = () => {
             transition={{ duration: 0.6, delay: 0.3, ease: [0.4, 0, 0.2, 1] }}
             className="hidden md:flex items-center space-x-4"
           >
-            {status === "loading" ? (
-              <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-            ) : session ? (
+            {session ? (
               <div className="flex items-center gap-4">
                 {/* Usage Counter */}
                 <UsageCounter />
@@ -164,7 +163,7 @@ const Header: React.FC = () => {
                 <div className="relative">
                   <button
                     onClick={toggleProfileDropdown}
-                    className="flex items-center space-x-2 p-1 rounded-full hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+                    className="flex items-center space-x-2 p-1.5 rounded-full hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
                     aria-label="Open profile menu"
                     aria-expanded={isProfileDropdownOpen}
                   >
@@ -210,7 +209,7 @@ const Header: React.FC = () => {
             initial={{ scale: 0 }}
             animate={{ scale: 1 }}
             transition={{ duration: 0.6, delay: 0.4, ease: [0.4, 0, 0.2, 1] }}
-            className="md:hidden p-2 rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+            className="md:hidden p-2.5 rounded-md hover:bg-gray-100 transition-colors duration-200 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             onClick={toggleMobileMenu}
             aria-label={isMenuOpen ? "Close menu" : "Open menu"}
             aria-expanded={isMenuOpen}
@@ -272,12 +271,7 @@ const Header: React.FC = () => {
 
                 {/* Mobile Profile Section */}
                 <div className="pt-4 border-t border-gray-200 mx-4">
-                  {status === "loading" ? (
-                    <div className="flex items-center space-x-3 px-2 py-2">
-                      <div className="h-8 w-8 bg-gray-200 rounded-full animate-pulse" />
-                      <div className="h-4 bg-gray-200 rounded animate-pulse flex-1" />
-                    </div>
-                  ) : session ? (
+                  {session ? (
                     <div className="space-y-3">
                       {/* User Info */}
                       <div className="flex items-center space-x-3 px-2 py-2">
@@ -303,8 +297,10 @@ const Header: React.FC = () => {
                       {/* Sign Out Button */}
                       <button
                         onClick={async () => {
-                          await signOut({ callbackUrl: "/" });
+                          await authClient.signOut();
                           setIsMenuOpen(false);
+                          router.push("/");
+                          router.refresh();
                         }}
                         className="w-full flex items-center space-x-3 px-2 py-3 text-red-600 hover:bg-red-50 transition-colors duration-200 rounded-md focus:outline-none focus:ring-2 focus:ring-red-500 focus:ring-offset-2"
                       >

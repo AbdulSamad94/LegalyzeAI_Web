@@ -1,6 +1,7 @@
 "use client";
 
-import { Upload, Brain, BarChart3 } from "lucide-react";
+import { motion } from "framer-motion";
+import { Upload, Brain, BarChart3, Check } from "lucide-react";
 
 type ViewState = "upload" | "processing" | "results";
 
@@ -15,31 +16,61 @@ const navigationItems = [
 ];
 
 const MobileBottomNav: React.FC<MobileBottomNavProps> = ({ currentView }) => {
+  const activeIndex = navigationItems.findIndex((nav) => nav.id === currentView);
+
   return (
-    <div className="lg:hidden bg-white/90 backdrop-blur-md border-t border-gray-200 p-4">
+    <nav
+      aria-label="Analysis progress"
+      className="lg:hidden bg-white/90 backdrop-blur-md border-t border-gray-200 p-3 pb-[calc(0.75rem+env(safe-area-inset-bottom))]"
+    >
       <div className="flex justify-around">
-        {navigationItems.map((item) => (
-          <div key={item.id} className="flex flex-col items-center">
+        {navigationItems.map((item, index) => {
+          const isCompleted = index < activeIndex;
+          const isActive = item.id === currentView;
+
+          return (
             <div
-              className={`w-10 h-10 rounded-xl flex items-center justify-center mb-1 transition-all ${
-                item.id === currentView
-                  ? "bg-blue-600 text-white"
-                  : "bg-gray-100 text-gray-400"
-              }`}
+              key={item.id}
+              aria-current={isActive ? "step" : undefined}
+              className="flex flex-col items-center gap-1 min-w-[44px]"
             >
-              <item.icon className="h-5 w-5" />
+              <motion.div
+                animate={
+                  isActive
+                    ? { scale: 1.1, boxShadow: "0 0 0 6px rgba(37, 99, 235, 0.12)" }
+                    : { scale: 1 }
+                }
+                transition={{ duration: 0.3 }}
+                className={`w-11 h-11 rounded-xl flex items-center justify-center transition-all ${
+                  isCompleted
+                    ? "bg-gradient-to-r from-green-500 to-emerald-500 text-white"
+                    : isActive
+                      ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-lg"
+                      : "bg-gray-100 text-gray-500"
+                }`}
+              >
+                {isCompleted ? (
+                  <Check className="h-5 w-5" />
+                ) : (
+                  <item.icon className="h-5 w-5" />
+                )}
+              </motion.div>
+              <span
+                className={`text-xs font-medium ${
+                  isCompleted
+                    ? "text-green-600"
+                    : isActive
+                      ? "text-blue-600"
+                      : "text-gray-500"
+                }`}
+              >
+                {item.label}
+              </span>
             </div>
-            <span
-              className={`text-xs font-medium ${
-                item.id === currentView ? "text-blue-600" : "text-gray-400"
-              }`}
-            >
-              {item.label}
-            </span>
-          </div>
-        ))}
+          );
+        })}
       </div>
-    </div>
+    </nav>
   );
 };
 
