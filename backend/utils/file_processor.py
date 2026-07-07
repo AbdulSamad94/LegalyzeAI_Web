@@ -6,7 +6,6 @@ import pdfplumber
 from docx import Document
 from PIL import Image
 import pytesseract
-from pdf2image import convert_from_bytes
 
 
 SUPPORTED_EXTENSIONS = {".pdf", ".docx", ".txt", ".png", ".jpg", ".jpeg"}

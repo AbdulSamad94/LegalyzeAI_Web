@@ -11,13 +11,14 @@ interface RouteContext {
 }
 
 export async function GET(req: Request, { params }: RouteContext) {
+    let analysisId: string | undefined;
     try {
         const session = await getSession();
         if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        const { analysisId } = await params;
+        ({ analysisId } = await params);
 
         const analysis = await db.query.analyses.findFirst({
             where: and(
@@ -33,19 +34,20 @@ export async function GET(req: Request, { params }: RouteContext) {
         return NextResponse.json({ success: true, data: analysis });
 
     } catch (error) {
-        console.error(`[API/analyses/:id] Error fetching analysis ${(await params).analysisId}:`, error);
+        console.error(`[API/analyses/:id] Error fetching analysis ${analysisId}:`, error);
         return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
     }
 }
 
 export async function DELETE(req: Request, { params }: RouteContext) {
+    let analysisId: string | undefined;
     try {
         const session = await getSession();
         if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        const { analysisId } = await params;
+        ({ analysisId } = await params);
 
         const [deleted] = await db
             .delete(analysesTable)
@@ -64,7 +66,7 @@ export async function DELETE(req: Request, { params }: RouteContext) {
         return NextResponse.json({ success: true, data: { id: deleted.id } });
 
     } catch (error) {
-        console.error(`[API/analyses/:id] Error deleting analysis ${(await params).analysisId}:`, error);
+        console.error(`[API/analyses/:id] Error deleting analysis ${analysisId}:`, error);
         return NextResponse.json({ success: false, error: "Internal server error" }, { status: 500 });
     }
 }

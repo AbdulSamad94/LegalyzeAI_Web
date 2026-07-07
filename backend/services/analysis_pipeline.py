@@ -207,9 +207,7 @@ async def run_demo_pipeline(
                 }
 
             except Exception as e:
-                logger.logger.info(
-                    "ANALYSIS_ERROR", f"Analysis processing failed: {str(e)}"
-                )
+                logger.analysis_error(session_id, f"Analysis processing failed: {str(e)}", "ANALYSIS_ERROR")
                 final_structured_data = {
                     "summary": "Document analysis completed but some details could not be extracted.",
                     "risks": [],
@@ -276,7 +274,7 @@ async def run_demo_pipeline(
         yield f"data: {final_payload}\n\n"
 
     except Exception as e:
-        logger.logger.info("DEMO_ERROR", f"Demo pipeline failed: {str(e)}")
+        logger.analysis_error(session_id, f"Demo pipeline failed: {str(e)}", "DEMO_ERROR")
         error_message = "Sorry, something went wrong during analysis. Please try uploading your document again."
         yield create_status_message("System Error", "failed", error_message)
 
@@ -587,7 +585,7 @@ async def run_enhanced_pipeline_streamed(
         yield f"data: {json.dumps({'final_result': error_result}, default=str)}\n\n"
 
     except Exception as e:
-        logger.logger.info("CRITICAL_ERROR", f"Pipeline failed: {str(e)}")
+        logger.analysis_error(session_id, f"Pipeline failed: {str(e)}", "CRITICAL_ERROR")
         metrics.log_analysis_error(session_id, str(e), "pipeline")
         error_result = {
             "type": "error",

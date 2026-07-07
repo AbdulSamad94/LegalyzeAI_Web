@@ -16,41 +16,56 @@ export async function POST(req: NextRequest) {
 
         const userId = session.user.id;
 
-        // Check daily upload limit
+        // Check + increment the daily upload limit atomically: a plain
+        // read-then-write here lets concurrent requests (e.g. two tabs, or a
+        // double-click) all read the same pre-increment count and all pass
+        // the check, exceeding DAILY_UPLOAD_LIMIT. FOR UPDATE locks the row
+        // for the duration of the transaction so concurrent callers queue
+        // instead of racing.
         const todayStart = new Date();
         todayStart.setHours(0, 0, 0, 0);
 
-        // Get current user
-        const currentUser = await db.query.user.findFirst({
-            where: eq(userTable.id, userId),
+        const limitCheckResult = await db.transaction(async (tx) => {
+            const [currentUser] = await tx
+                .select()
+                .from(userTable)
+                .where(eq(userTable.id, userId))
+                .for("update");
+
+            if (!currentUser) {
+                return "NOT_FOUND" as const;
+            }
+
+            let uploadCount = currentUser.dailyUploadCount || 0;
+            if (!currentUser.lastUploadDate || new Date(currentUser.lastUploadDate) < todayStart) {
+                uploadCount = 0;
+            }
+
+            if (uploadCount >= DAILY_UPLOAD_LIMIT) {
+                return "LIMIT_REACHED" as const;
+            }
+
+            await tx
+                .update(userTable)
+                .set({
+                    dailyUploadCount: uploadCount + 1,
+                    lastUploadDate: new Date(),
+                })
+                .where(eq(userTable.id, userId));
+
+            return "OK" as const;
         });
 
-        if (!currentUser) {
+        if (limitCheckResult === "NOT_FOUND") {
             return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
         }
 
-        // Reset count if last upload was before today
-        let uploadCount = currentUser.dailyUploadCount || 0;
-        if (!currentUser.lastUploadDate || new Date(currentUser.lastUploadDate) < todayStart) {
-            uploadCount = 0;
-        }
-
-        // Check if under limit
-        if (uploadCount >= DAILY_UPLOAD_LIMIT) {
+        if (limitCheckResult === "LIMIT_REACHED") {
             return NextResponse.json({
                 success: false,
                 error: `Daily limit reached. You can only upload ${DAILY_UPLOAD_LIMIT} documents per day.`
             }, { status: 429 });
         }
-
-        // Update user's upload count
-        await db
-            .update(userTable)
-            .set({
-                dailyUploadCount: uploadCount + 1,
-                lastUploadDate: new Date(),
-            })
-            .where(eq(userTable.id, userId));
 
         const formData = await req.formData();
         const file = formData.get("file") as File | null;
