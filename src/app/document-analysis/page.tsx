@@ -2,7 +2,7 @@
 
 import type React from "react";
 import { useState, useRef } from "react";
-import { useSession } from "next-auth/react";
+import { authClient } from "@/lib/auth-client";
 import { AnimatePresence } from "framer-motion";
 import {
   type ProcessingUpdate,
@@ -51,7 +51,7 @@ const LegalAnalysisComponent: React.FC = () => {
     useState<AnalysisResultShape | null>(null);
   const [error, setError] = useState<string | null>(null);
   const fileInputRef = useRef<HTMLInputElement>(null);
-  const { data: session } = useSession();
+  const { data: session } = authClient.useSession();
 
   const resetState = () => {
     setFile(null);
@@ -128,6 +128,8 @@ const LegalAnalysisComponent: React.FC = () => {
           if (jsonStr === "[DONE]") {
             setIsAnalyzing(false);
             setCurrentView("results");
+            // Refresh usage counter after upload
+            window.dispatchEvent(new Event("upload-complete"));
             return;
           }
 
@@ -168,6 +170,8 @@ const LegalAnalysisComponent: React.FC = () => {
       setCurrentView("upload");
     } finally {
       setIsAnalyzing(false);
+      // Refresh usage counter after upload attempt (success or failure)
+      window.dispatchEvent(new Event("upload-complete"));
     }
   };
 
@@ -196,6 +200,7 @@ const LegalAnalysisComponent: React.FC = () => {
             formatFileSize={formatFileSize}
             analysisResult={analysisResult}
             resetState={resetState}
+            processingUpdates={processingUpdates}
           />
 
           <div className="flex-1 overflow-auto">

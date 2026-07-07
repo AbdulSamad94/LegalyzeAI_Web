@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
+import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 
 type Body = {
     name?: string;
@@ -8,8 +9,33 @@ type Body = {
     message: string;
 };
 
+function escapeHtml(input: string): string {
+    return input
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;")
+        .replace(/"/g, "&quot;")
+        .replace(/'/g, "&#39;");
+}
+
+const REPORT_RATE_LIMIT_MAX = 5;
+const REPORT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+
 export async function POST(req: Request) {
     try {
+        const clientIp = getClientIp(req);
+        const { allowed, retryAfterSeconds } = checkRateLimit(
+            `report:${clientIp}`,
+            REPORT_RATE_LIMIT_MAX,
+            REPORT_RATE_LIMIT_WINDOW_MS
+        );
+        if (!allowed) {
+            return NextResponse.json(
+                { error: "Too many reports submitted. Please try again later." },
+                { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
+            );
+        }
+
         const body = (await req.json()) as Body;
 
         if (!body || !body.subject || !body.message) {
@@ -42,10 +68,10 @@ export async function POST(req: Request) {
             subject: `[Bug Report] ${body.subject}`,
             replyTo: body.email || undefined,
             text: `Name: ${body.name || "-"}\nEmail: ${body.email || "-"}\n\nMessage:\n${body.message}`,
-            html: `<p><strong>Name:</strong> ${body.name || "-"}</p>
-             <p><strong>Email:</strong> ${body.email || "-"}</p>
+            html: `<p><strong>Name:</strong> ${escapeHtml(body.name || "-")}</p>
+             <p><strong>Email:</strong> ${escapeHtml(body.email || "-")}</p>
              <hr />
-             <p>${body.message.replace(/\n/g, "<br />")}</p>`,
+             <p>${escapeHtml(body.message).replace(/\n/g, "<br />")}</p>`,
         };
 
         await transporter.sendMail(mailOptions);

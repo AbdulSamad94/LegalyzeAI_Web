@@ -1,32 +1,27 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getServerSession } from "next-auth/next";
-import { authOptions } from "@/lib/auth";
-import mongoose from "mongoose";
-import User from "@/lib/database/models/User";
-import dbConnect from "@/lib/database/mongoDB";
+import { getSession } from "@/lib/auth-server";
+import { db } from "@/lib/db/client";
+import { user as userTable } from "@/lib/db/schema";
+import { eq } from "drizzle-orm";
 import { DAILY_UPLOAD_LIMIT } from "@/lib/constants/UserConstants";
 
-export async function GET(req: NextRequest) {
+// eslint-disable-next-line @typescript-eslint/no-unused-vars
+export async function GET(_req: NextRequest) {
     try {
-        await dbConnect();
-        const session = await getServerSession(authOptions);
-        if (!session || !session.user || !session.user.id) {
+        const session = await getSession();
+        if (!session?.user?.id) {
             return NextResponse.json({ success: false, error: "Unauthorized" }, { status: 401 });
         }
 
-        if (typeof session.user.id !== 'string' || !mongoose.Types.ObjectId.isValid(session.user.id)) {
-            return NextResponse.json({ success: false, error: "Unauthorized: Invalid user ID" }, { status: 401 });
-        }
-
-        const userId = new mongoose.Types.ObjectId(session.user.id);
-        const user = await User.findById(userId);
+        const user = await db.query.user.findFirst({
+            where: eq(userTable.id, session.user.id),
+        });
 
         if (!user) {
             return NextResponse.json({ success: false, error: "User not found" }, { status: 404 });
         }
 
         // Logic to reset count if it's a new day (display purposes, actual reset happens on upload too)
-        // We replicate the logic here so the UI shows the correct potential state
         const today = new Date();
         today.setHours(0, 0, 0, 0);
 

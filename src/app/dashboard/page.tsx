@@ -23,7 +23,7 @@ import { PageWrapper } from "@/components/ui/PageWrapper";
 
 // Updated interface to match the backend model
 interface AnalysisRecord {
-  _id: string;
+  id: string;
   documentName: string;
   documentType: string;
   createdAt: string; // Comes as ISO string
@@ -53,6 +53,7 @@ const ProductionDashboard = () => {
   const [filter, setFilter] = useState<"all" | "high-risk" | "recent">("all");
   const [searchTerm, setSearchTerm] = useState("");
   const [isLoading, setIsLoading] = useState(true);
+  const [deletingId, setDeletingId] = useState<string | null>(null);
 
   // Fetch real data from the API
   useEffect(() => {
@@ -135,6 +136,59 @@ const ProductionDashboard = () => {
     return <CheckCircle className="h-5 w-5 text-green-500" />;
   };
 
+  const handleDelete = async (analysisId: string, documentName: string) => {
+    if (!window.confirm(`Delete "${documentName}"? This cannot be undone.`)) {
+      return;
+    }
+
+    setDeletingId(analysisId);
+    const previousAnalyses = analyses;
+    setAnalyses((prev) => prev.filter((a) => a.id !== analysisId));
+
+    try {
+      const response = await fetch(`/api/analyses/${analysisId}`, {
+        method: "DELETE",
+      });
+      const result = await response.json();
+
+      if (!result.success) {
+        throw new Error(result.error || "Failed to delete analysis");
+      }
+    } catch (error) {
+      console.error("Error deleting analysis:", error);
+      setAnalyses(previousAnalyses);
+      window.alert("Failed to delete the analysis. Please try again.");
+    } finally {
+      setDeletingId(null);
+    }
+  };
+
+  const handleExport = () => {
+    if (filteredAnalyses.length === 0) return;
+
+    const escapeCsv = (value: string) => `"${value.replace(/"/g, '""')}"`;
+    const header = ["Document Name", "Document Type", "Date", "Risk Level", "Risk Count", "Verdict"];
+    const rows = filteredAnalyses.map((a) => [
+      a.documentName,
+      a.documentType,
+      new Date(a.createdAt).toISOString(),
+      getRiskLevel(a.risks.length, a.verdict),
+      String(a.risks.length),
+      a.verdict,
+    ].map(escapeCsv).join(","));
+
+    const csv = [header.map(escapeCsv).join(","), ...rows].join("\n");
+    const blob = new Blob([csv], { type: "text/csv;charset=utf-8" });
+    const url = URL.createObjectURL(blob);
+    const link = document.createElement("a");
+    link.href = url;
+    link.download = `legalyze-analyses-${new Date().toISOString().slice(0, 10)}.csv`;
+    document.body.appendChild(link);
+    link.click();
+    document.body.removeChild(link);
+    URL.revokeObjectURL(url);
+  };
+
   const filteredAnalyses = analyses.filter((analysis) => {
     const matchesSearch =
       analysis.documentName.toLowerCase().includes(searchTerm.toLowerCase()) ||
@@ -192,7 +246,12 @@ const ProductionDashboard = () => {
               <Plus className="h-5 w-5" />
               New Analysis
             </Link>
-            <button className="bg-white text-slate-700 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center gap-2 font-medium shadow-sm">
+            <button
+              type="button"
+              onClick={handleExport}
+              disabled={filteredAnalyses.length === 0}
+              className="bg-white text-slate-700 px-5 py-2.5 rounded-xl border border-slate-200 hover:bg-slate-50 hover:border-slate-300 transition-all duration-200 flex items-center gap-2 font-medium shadow-sm disabled:opacity-50 disabled:cursor-not-allowed"
+            >
               <Download className="h-4 w-4" />
               Export Data
             </button>
@@ -278,7 +337,7 @@ const ProductionDashboard = () => {
                   );
                   return (
                     <motion.div
-                      key={analysis._id}
+                      key={analysis.id}
                       initial={{ opacity: 0, x: -20 }}
                       animate={{ opacity: 1, x: 0 }}
                       transition={{ delay: index * 0.05 }}
@@ -327,14 +386,17 @@ const ProductionDashboard = () => {
 
                         <div className="flex items-center gap-2 border-l border-slate-200 pl-4 ml-2">
                           <Link
-                            href={`/analyses/${analysis._id}`}
+                            href={`/analyses/${analysis.id}`}
                             className="p-2 text-slate-400 hover:text-blue-600 hover:bg-blue-50 rounded-lg transition-all"
                             title="View Analysis"
                           >
                             <Eye className="h-5 w-5" />
                           </Link>
                           <button
-                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all"
+                            type="button"
+                            onClick={() => handleDelete(analysis.id, analysis.documentName)}
+                            disabled={deletingId === analysis.id}
+                            className="p-2 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded-lg transition-all disabled:opacity-50 disabled:cursor-not-allowed"
                             title="Delete"
                           >
                             <Trash2 className="h-5 w-5" />

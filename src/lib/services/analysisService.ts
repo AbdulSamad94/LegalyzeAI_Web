@@ -1,16 +1,11 @@
-import mongoose from "mongoose";
-import dbConnect from "@/lib/database/mongoDB";
-import Analytics from "@/lib/database/models/Analysis";
+import { db } from "@/lib/db/client";
+import { analyses } from "@/lib/db/schema";
 import { LegalAnalysisResult, parseStreamData } from "@/lib/types";
 
 export class AnalysisService {
-    /**
-     * Reads a stream, reconstructs server-sent events, parses the final JSON analysis,
-     * and saves it to the database associated with the user.
-     */
     static async collectAndSaveAnalysis(
         stream: ReadableStream<Uint8Array>,
-        userId: mongoose.Types.ObjectId,
+        userId: string,
         documentName: string
     ) {
         const reader = stream.getReader();
@@ -38,7 +33,7 @@ export class AnalysisService {
                         if (finalResult && finalResult.type === 'legal_analysis') {
                             analysisResult = finalResult.analysis;
                         }
-                    } catch (jsonError) {
+                    } catch {
                         // Ignore partial JSON chunks
                     }
                 }
@@ -50,9 +45,8 @@ export class AnalysisService {
             }
 
             if (analysisResult.summary && analysisResult.risks && analysisResult.verdict) {
-                await dbConnect();
-
-                const newAnalysis = new Analytics({
+                await db.insert(analyses).values({
+                    id: crypto.randomUUID(),
                     userId,
                     documentName,
                     documentType: 'General',
@@ -61,7 +55,6 @@ export class AnalysisService {
                     verdict: analysisResult.verdict,
                 });
 
-                await newAnalysis.save();
                 console.log(`[AnalysisService] Successfully saved analysis for: ${documentName}`);
             } else {
                 console.error("[AnalysisService] Missing required fields in analysis result.");

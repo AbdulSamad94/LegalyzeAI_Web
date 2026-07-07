@@ -43,3 +43,53 @@ next-env.d.ts
 #other file
 
 /03_Legal_Document_Assistant
+
+# Python (backend/ only - anchored so these generic names never match src/)
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/**/*.pyc
+backend/*.pyo
+backend/**/*.pyo
+backend/*.pyd
+backend/**/*.pyd
+backend/.Python
+backend/env/
+backend/venv/
+backend/.venv/
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheels/
+backend/share/python-wheels/
+backend/*.egg-info/
+backend/**/*.egg-info/
+backend/.installed.cfg
+backend/*.manifest
+backend/*.spec
+
+# Jupyter / IPython
+.ipynb_checkpoints
+.ipynd_checkpoints
+
+# IDEs
+.idea/
+.vscode/
+*.sublime-project
+*.sublime-workspace
+
+# Logs and temporary files
+*.log
+*.tmp
+logs/
+temp/
+Thumbs.db
+
+AUDIT.md
