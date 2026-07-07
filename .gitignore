@@ -44,31 +44,36 @@ next-env.d.ts
 
 /03_Legal_Document_Assistant
 
-# Python (backend/)
-__pycache__/
-*.pyc
-*.pyo
-*.pyd
-.Python
-env/
-venv/
-.venv/
-build/
-develop-eggs/
-dist/
-eggs/
-.eggs/
-lib/
-lib64/
-parts/
-sdist/
-var/
-wheels/
-share/python-wheels/
-*.egg-info/
-.installed.cfg
-*.manifest
-*.spec
+# Python (backend/ only - anchored so these generic names never match src/)
+backend/__pycache__/
+backend/**/__pycache__/
+backend/*.pyc
+backend/**/*.pyc
+backend/*.pyo
+backend/**/*.pyo
+backend/*.pyd
+backend/**/*.pyd
+backend/.Python
+backend/env/
+backend/venv/
+backend/.venv/
+backend/build/
+backend/develop-eggs/
+backend/dist/
+backend/eggs/
+backend/.eggs/
+backend/lib/
+backend/lib64/
+backend/parts/
+backend/sdist/
+backend/var/
+backend/wheels/
+backend/share/python-wheels/
+backend/*.egg-info/
+backend/**/*.egg-info/
+backend/.installed.cfg
+backend/*.manifest
+backend/*.spec
 
 # Jupyter / IPython
 .ipynb_checkpoints
