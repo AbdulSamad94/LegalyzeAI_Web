@@ -30,13 +30,33 @@ export async function POST(req: Request) {
             );
         }
 
-        const body = (await req.json()) as Body;
+        let body: Body;
+        try {
+            body = await req.json();
+        } catch {
+            return NextResponse.json({ error: "Invalid JSON body" }, { status: 400 });
+        }
 
-        if (!body || !body.name?.trim() || !body.email?.trim() || !body.subject?.trim() || !body.message?.trim()) {
+        if (
+            !body ||
+            typeof body.name !== "string" ||
+            typeof body.email !== "string" ||
+            typeof body.subject !== "string" ||
+            typeof body.message !== "string"
+        ) {
+            return NextResponse.json({ error: "name, email, subject, and message must be strings" }, { status: 400 });
+        }
+
+        const name = body.name.trim();
+        const email = body.email.trim();
+        const subject = body.subject.trim();
+        const message = body.message.trim();
+
+        if (!name || !email || !subject || !message) {
             return NextResponse.json({ error: "name, email, subject, and message are required" }, { status: 400 });
         }
 
-        if (!EMAIL_REGEX.test(body.email)) {
+        if (!EMAIL_REGEX.test(email)) {
             return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
         }
 
@@ -63,13 +83,13 @@ export async function POST(req: Request) {
         const mailOptions = {
             from: process.env.SMTP_FROM || SMTP_USER,
             to: TO_EMAIL,
-            replyTo: body.email,
-            subject: `[Contact Form] ${body.subject}`,
-            text: `Name: ${body.name}\nEmail: ${body.email}\n\nMessage:\n${body.message}`,
-            html: `<p><strong>Name:</strong> ${escapeHtml(body.name)}</p>
-             <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
+            replyTo: email,
+            subject: `[Contact Form] ${subject}`,
+            text: `Name: ${name}\nEmail: ${email}\n\nMessage:\n${message}`,
+            html: `<p><strong>Name:</strong> ${escapeHtml(name)}</p>
+             <p><strong>Email:</strong> ${escapeHtml(email)}</p>
              <hr />
-             <p>${escapeHtml(body.message).replace(/\n/g, "<br />")}</p>`,
+             <p>${escapeHtml(message).replace(/\n/g, "<br />")}</p>`,
         };
 
         await transporter.sendMail(mailOptions);

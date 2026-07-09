@@ -52,6 +52,7 @@ export default function ContactPage() {
   const [touched, setTouched] = useState<Record<string, boolean>>({});
   const [loading, setLoading] = useState(false);
   const [status, setStatus] = useState<"idle" | "success" | "error">("idle");
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
 
   const nameRef = useRef<HTMLInputElement>(null);
   const emailRef = useRef<HTMLInputElement>(null);
@@ -91,6 +92,7 @@ export default function ContactPage() {
 
     setLoading(true);
     setStatus("idle");
+    setErrorMessage(null);
 
     try {
       const res = await fetch("/api/contact", {
@@ -108,10 +110,13 @@ export default function ContactPage() {
         setTouched({});
         setErrors({});
       } else {
+        const data = await res.json().catch(() => ({}));
+        setErrorMessage(data.error || "Something went wrong sending your message. Please try again.");
         setStatus("error");
       }
     } catch (err) {
       console.error(err);
+      setErrorMessage("Something went wrong sending your message. Please try again.");
       setStatus("error");
     } finally {
       setLoading(false);
@@ -150,7 +155,7 @@ export default function ContactPage() {
             initial={{ opacity: 0, y: 16 }}
             animate={{ opacity: 1, y: 0 }}
             transition={{ duration: 0.5, delay: 0.05 }}
-            className="bg-gradient-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-2xl"
+            className="bg-linear-to-r from-blue-600 to-indigo-600 rounded-2xl sm:rounded-3xl p-6 sm:p-10 lg:p-12 text-white shadow-2xl"
           >
             <div className="flex items-center gap-4 mb-4">
               <div className="w-12 h-12 sm:w-14 sm:h-14 bg-white/20 rounded-xl sm:rounded-2xl flex items-center justify-center flex-shrink-0">
@@ -344,7 +349,7 @@ export default function ContactPage() {
                       >
                         <AlertCircle className="h-4 w-4 flex-shrink-0" />
                         <p className="text-sm font-medium">
-                          Something went wrong sending your message. Please try again.
+                          {errorMessage || "Something went wrong sending your message. Please try again."}
                         </p>
                       </motion.div>
                     )}
@@ -355,7 +360,7 @@ export default function ContactPage() {
                     whileTap={{ scale: 0.99 }}
                     type="submit"
                     disabled={loading}
-                    className="w-full sm:w-auto px-8 py-3 bg-gradient-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
+                    className="w-full sm:w-auto px-8 py-3 bg-linear-to-r from-blue-600 to-indigo-600 text-white rounded-xl font-semibold hover:shadow-lg hover:shadow-blue-500/25 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2 cursor-pointer"
                   >
                     {loading ? (
                       <>

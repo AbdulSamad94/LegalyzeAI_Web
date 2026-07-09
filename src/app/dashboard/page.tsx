@@ -254,7 +254,7 @@ const ProductionDashboard = () => {
           <div className="flex gap-3">
             <Link
               href="/document-analysis"
-              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer"
+              className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 flex items-center gap-2 font-medium cursor-pointer"
             >
               <Plus className="h-5 w-5" />
               New Analysis
@@ -343,7 +343,7 @@ const ProductionDashboard = () => {
                       aria-pressed={filter === option.value}
                       className={`px-3.5 py-2 rounded-lg text-sm font-medium whitespace-nowrap transition-all duration-200 cursor-pointer ${
                         filter === option.value
-                          ? "bg-gradient-to-r from-blue-600 to-indigo-600 text-white shadow-sm"
+                          ? "bg-linear-to-r from-blue-600 to-indigo-600 text-white shadow-sm"
                           : "text-slate-600 hover:text-slate-900 hover:bg-white/60"
                       }`}
                     >
@@ -527,7 +527,7 @@ const EmptyState = ({
     ) : (
       <Link
         href="/document-analysis"
-        className="inline-flex items-center gap-2 bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer"
+        className="inline-flex items-center gap-2 bg-linear-to-r from-blue-600 to-indigo-600 text-white px-5 py-2.5 rounded-xl hover:shadow-lg hover:shadow-blue-500/25 hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer"
       >
         <Plus className="h-5 w-5" />
         New Analysis
