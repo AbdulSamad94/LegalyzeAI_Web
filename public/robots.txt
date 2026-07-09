@@ -1,9 +1,0 @@
-# *
-User-agent: *
-Allow: /
-
-# Host
-Host: https://legalyze-ai.vercel.app
-
-# Sitemaps
-Sitemap: https://legalyze-ai.vercel.app/sitemap.xml

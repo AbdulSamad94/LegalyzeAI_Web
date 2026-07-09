@@ -1,6 +1,15 @@
 import { Suspense } from "react";
+import type { Metadata } from "next";
 import { Loader2 } from "lucide-react";
 import { VerificationUI } from "@/components/verification/VerificationUI";
+
+export const metadata: Metadata = {
+  title: "Verify Your Email",
+  robots: {
+    index: false,
+    follow: false,
+  },
+};
 
 const LoadingFallback = () => (
   <div className="min-h-screen bg-gradient-to-br from-slate-50 to-blue-50 flex items-center justify-center p-8">

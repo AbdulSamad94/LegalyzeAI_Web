@@ -8,8 +8,8 @@ import { FaGithub } from "react-icons/fa";
 import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
+import { AuthBrandMark } from "@/components/auth/AuthBrandMark";
 
 const LoginPage = () => {
   const router = useRouter();
@@ -160,13 +160,7 @@ const LoginPage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex justify-center mb-6"
             >
-              <Image
-                src="/big-icon.png"
-                alt="LegalyzeAI Logo"
-                width={80}
-                height={80}
-                className="h-20 w-auto"
-              />
+              <AuthBrandMark />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Welcome Back

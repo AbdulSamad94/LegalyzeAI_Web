@@ -4,34 +4,40 @@ import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
 import { escapeHtml } from "@/lib/utils/html";
 
 type Body = {
-    name?: string;
-    email?: string;
+    name: string;
+    email: string;
     subject: string;
     message: string;
 };
 
-const REPORT_RATE_LIMIT_MAX = 5;
-const REPORT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
+const EMAIL_REGEX = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+
+const CONTACT_RATE_LIMIT_MAX = 5;
+const CONTACT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
 
 export async function POST(req: Request) {
     try {
         const clientIp = getClientIp(req);
         const { allowed, retryAfterSeconds } = checkRateLimit(
-            `report:${clientIp}`,
-            REPORT_RATE_LIMIT_MAX,
-            REPORT_RATE_LIMIT_WINDOW_MS
+            `contact:${clientIp}`,
+            CONTACT_RATE_LIMIT_MAX,
+            CONTACT_RATE_LIMIT_WINDOW_MS
         );
         if (!allowed) {
             return NextResponse.json(
-                { error: "Too many reports submitted. Please try again later." },
+                { error: "Too many messages submitted. Please try again later." },
                 { status: 429, headers: { "Retry-After": String(retryAfterSeconds) } }
             );
         }
 
         const body = (await req.json()) as Body;
 
-        if (!body || !body.subject || !body.message) {
-            return NextResponse.json({ error: "subject and message required" }, { status: 400 });
+        if (!body || !body.name?.trim() || !body.email?.trim() || !body.subject?.trim() || !body.message?.trim()) {
+            return NextResponse.json({ error: "name, email, subject, and message are required" }, { status: 400 });
+        }
+
+        if (!EMAIL_REGEX.test(body.email)) {
+            return NextResponse.json({ error: "A valid email address is required" }, { status: 400 });
         }
 
         const SMTP_HOST = process.env.SMTP_HOST;
@@ -57,11 +63,11 @@ export async function POST(req: Request) {
         const mailOptions = {
             from: process.env.SMTP_FROM || SMTP_USER,
             to: TO_EMAIL,
-            subject: `[Bug Report] ${body.subject}`,
-            replyTo: body.email || undefined,
-            text: `Name: ${body.name || "-"}\nEmail: ${body.email || "-"}\n\nMessage:\n${body.message}`,
-            html: `<p><strong>Name:</strong> ${escapeHtml(body.name || "-")}</p>
-             <p><strong>Email:</strong> ${escapeHtml(body.email || "-")}</p>
+            replyTo: body.email,
+            subject: `[Contact Form] ${body.subject}`,
+            text: `Name: ${body.name}\nEmail: ${body.email}\n\nMessage:\n${body.message}`,
+            html: `<p><strong>Name:</strong> ${escapeHtml(body.name)}</p>
+             <p><strong>Email:</strong> ${escapeHtml(body.email)}</p>
              <hr />
              <p>${escapeHtml(body.message).replace(/\n/g, "<br />")}</p>`,
         };
@@ -70,7 +76,7 @@ export async function POST(req: Request) {
 
         return NextResponse.json({ ok: true });
     } catch (err) {
-        console.error("Error sending bug report", err);
+        console.error("Error sending contact message", err);
         return NextResponse.json({ error: "internal" }, { status: 500 });
     }
 }

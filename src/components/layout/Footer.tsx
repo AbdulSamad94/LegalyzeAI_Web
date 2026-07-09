@@ -10,7 +10,7 @@ const Footer = () => {
     { name: "About", href: "#" },
     { name: "Privacy Policy", href: "/privacy" },
     { name: "Terms of Service", href: "/terms" },
-    { name: "Contact", href: "#" },
+    { name: "Contact", href: "/contact" },
   ];
 
   const socials = [

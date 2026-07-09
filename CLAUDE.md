@@ -26,7 +26,7 @@ Full findings, evidence, and severity-ranked flaws: **see `AUDIT.md`** (last run
 ## Conventions
 
 - Package manager is **pnpm** — don't reach for `npm`/`yarn` commands or lockfiles.
-- All gradient CTAs use `bg-gradient-to-r from-blue-600 to-indigo-600` (not `bg-linear-to-r` — that's a Tailwind v4 syntax that doesn't resolve to the intended gradient utility in this setup; if you see it, it's a leftover bug to fix, not a style choice).
+- All gradient CTAs use `bg-linear-to-r from-blue-600 to-indigo-600` — Tailwind v4's canonical gradient utility name (verified against `node_modules/tailwindcss/dist/lib.js` in this project: `bg-gradient-to-r` still compiles, since v4 keeps it as a backward-compat alias for `bg-linear-to-r`, but new code should use the canonical name).
 - Step-progress UI (sidebar steps, mobile bottom nav) shares one visual language: gradient blue-to-indigo for "active", gradient green-to-emerald for "completed", `text-gray-500`/`bg-gray-200` (not `gray-400`) for "pending" — `gray-400` text fails WCAG AA contrast on white and was deliberately changed away from.
 - Auth session reads on the server always go through `getSession()`/`requireAuth()` in `src/lib/auth-server.ts`. Client components use `authClient.useSession()` from `src/lib/auth-client.ts`, which returns `{ data, isPending, error }` — **not** `{ data, status }` (that's the old next-auth shape; don't reintroduce it).
 - Real document analysis and the public demo are intentionally different code paths (`run_enhanced_pipeline_streamed` vs `run_demo_pipeline`) — don't assume unifying them is free; the demo path is deliberately unauthenticated and lighter-weight.

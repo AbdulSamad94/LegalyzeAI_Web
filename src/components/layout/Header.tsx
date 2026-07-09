@@ -199,7 +199,7 @@ const Header: React.FC = () => {
 
             <Link
               href={session ? "/dashboard" : "/signup"}
-              className="bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
+              className="bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-2 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium cursor-pointer focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2"
             >
               {session ? "Dashboard" : "Get Started"}
             </Link>
@@ -322,7 +322,7 @@ const Header: React.FC = () => {
                   <Link
                     href={session ? "/dashboard" : "/signup"}
                     onClick={() => setIsMenuOpen(false)}
-                    className="block w-full text-center bg-linear-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-3"
+                    className="block w-full text-center bg-gradient-to-r from-blue-600 to-indigo-600 text-white px-6 py-3 rounded-xl hover:shadow-lg hover:from-blue-700 hover:to-indigo-700 transition-all duration-200 font-medium focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2 mt-3"
                   >
                     {session ? "Dashboard" : "Get Started"}
                   </Link>
