@@ -14,12 +14,12 @@ import { useState, useRef, useEffect } from "react";
 import Link from "next/link";
 import { FaGithub } from "react-icons/fa6";
 import { FcGoogle } from "react-icons/fc";
-import Image from "next/image";
 import { authClient } from "@/lib/auth-client";
 import { useFormValidation } from "@/lib/hooks/useFormValidation";
 import { FormInput } from "@/components/form/FormInput";
 import { PasswordConfirmation } from "@/components/form/PasswordConfirmation";
 import { PasswordStrengthMeter } from "@/components/form/PasswordStrengthMeter";
+import { AuthBrandMark } from "@/components/auth/AuthBrandMark";
 
 const SignupPage = () => {
   const nameInputRef = useRef<HTMLInputElement>(null);
@@ -260,13 +260,7 @@ const SignupPage = () => {
               transition={{ duration: 0.6, delay: 0.2 }}
               className="flex justify-center mb-6"
             >
-              <Image
-                src="/big-icon.png"
-                alt="LegalyzeAI Logo"
-                width={80}
-                height={80}
-                className="h-20 w-auto"
-              />
+              <AuthBrandMark />
             </motion.div>
             <h1 className="text-3xl font-bold text-gray-900 mb-2">
               Create Account

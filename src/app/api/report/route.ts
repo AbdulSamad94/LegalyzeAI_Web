@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import nodemailer from "nodemailer";
 import { checkRateLimit, getClientIp } from "@/lib/rate-limit";
+import { escapeHtml } from "@/lib/utils/html";
 
 type Body = {
     name?: string;
@@ -8,15 +9,6 @@ type Body = {
     subject: string;
     message: string;
 };
-
-function escapeHtml(input: string): string {
-    return input
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;")
-        .replace(/"/g, "&quot;")
-        .replace(/'/g, "&#39;");
-}
 
 const REPORT_RATE_LIMIT_MAX = 5;
 const REPORT_RATE_LIMIT_WINDOW_MS = 10 * 60 * 1000; // 10 minutes
